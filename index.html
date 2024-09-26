@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GamePub V2 (Early Release)</title>
+    <style>
+        .stats, .Clear {
+            font-size: 1.5em;
+            height: 65px;
+            width: 150px;
+            margin-top: 1px;
+            padding: 1px 10px;
+            cursor: pointer;
+            background: white;
+            color: black;
+            border-radius: 15px;
+            border: 2px solid Black;
+            display: inline-block;
+            margin-right: 10px; /* Add some space between buttons */
+        }
+        .alert {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+        }
+        .alert button {
+            margin-top: 10px;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        /* Dark mode styles */
+        .dark-mode {
+            background-color: black;
+            color: white;
+        }
+        .dark-mode .stats, .dark-mode .Clear {
+            background: black;
+            color: white;
+            border: 2px solid white;
+        }
+        .dark-mode .alert {
+            background-color: black;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>GamePub Rewrite</h1>
+    <button onclick="dark()">Dark Mode</button>
+    <h2>V2.8: Added a HUGE bug fix that allows the 'launch anyways' feature on external game files and prevents bypasses in code.</h2>  
+    <button onclick="toggleGame(1)">1. Number Game</button>
+    <button onclick="toggleGame(2)">2. Rock Paper Scissors</button>
+    <button onclick="toggleGame(3)">3. Quiz Game</button>
+    <button onclick="toggleGame(4)">4. Tic Tac Toe</button>
+    <button onclick="toggleGame(5)">5. Memory Matching</button>
+    <div id="gameArea"></div>
+
+    <div id="customAlert" class="alert">
+        <p>There's already a game active, are you sure you'd like to continue with this action?</p>
+        <button onclick="clearGameArea()">Clear</button>
+        <button onclick="closeAlert()">Cancel</button>
+        <button id="launchAnyways">Launch Anyways</button>
+    </div>
+    <div id="overlay" class="overlay"></div>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        let currentGame = null;
+        let pendingGame = null;
+
+        // Check and apply dark mode state from localStorage
+        if (localStorage.getItem('Dark') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+
+        function dark() {
+            if (document.body.classList.contains('dark-mode')) {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('Dark', 'false');
+            } else {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('Dark', 'true');
+            }
+        }
+
+        function toggleGame(game) {
+            if (currentGame !== null && currentGame !== game) {
+                pendingGame = game;
+                showAlert();
+                return;
+            }
+            if (currentGame === game) {
+                gameArea.innerHTML = '';
+                currentGame = null;
+            } else {
+                currentGame = game;
+                selectGame(game);
+            }
+        }
+
+        function selectGame(game) {
+            if (game === 1) {
+                numberGame();
+            } else if (game === 2) {
+                rockPaperScissors();
+            } else if (game === 3) {
+                customGame();
+            } else if (game === 4) {
+                tic();
+            } else if (game === 5) {
+                Memory();
+            } else {
+                gameArea.innerHTML = 'This game is not in the options provided.';
+            }
+        }
+
+        function Memory() {
+            window.location.href = 'memory.html';
+        }
+
+        function tic() {
+            window.location.href = 'new.html';
+        }
+
+        function numberGame() {
+            gameArea.innerHTML = `
+                <p>Try to guess the random number (1-10):</p>
+                <input type="number" id="guess" min="1" max="10">
+                <button onclick="checkNumber()">Submit</button>
+                <p id="result"></p>
+            `;
+
+            const randomNumber = Math.floor(Math.random() * 10) + 1;
+
+            window.checkNumber = function() {
+                const guess = parseInt(document.getElementById('guess').value);
+                const result = document.getElementById('result');
+                if (guess === randomNumber) {
+                    alert('Correct!');
+                    gameArea.innerHTML = '';
+                    currentGame = null;
+                    pendingGame = null;
+                } else if (guess > 10 || guess < 1) {
+                    alert('Invalid number.');
+                    gameArea.innerHTML = '';
+                    currentGame = null;
+                    pendingGame = null;
+                } else {
+                    alert('Incorrect.');
+                    gameArea.innerHTML = '';
+                    currentGame = null;
+                    pendingGame = null;
+                }
+            };
+        }
+
+        function rockPaperScissors() {
+            gameArea.innerHTML = `
+                <p>Enter your choice (rock, paper, or scissors):</p>
+                <input type="text" id="playerChoice">
+                <button onclick="playRPS()">Submit</button>
+                <p id="result"></p>
+            `;
+
+            window.playRPS = function() {
+                const playerChoice = document.getElementById('playerChoice').value.toLowerCase();
+                const choices = ['rock', 'paper', 'scissors'];
+                const computerChoice = choices[Math.floor(Math.random() * 3)];
+                const result = document.getElementById('result');
+
+                if (playerChoice === computerChoice) {
+                    alert('You tied!');
+                    gameArea.innerHTML = '';
+                    currentGame = null;
+                    pendingGame = null;
+                } else if (
+                    (playerChoice === 'rock' && computerChoice === 'scissors') ||
+                    (playerChoice === 'paper' && computerChoice === 'rock') ||
+                    (playerChoice === 'scissors' && computerChoice === 'paper')
+                ) {
+                    alert('You win!');
+                    gameArea.innerHTML = '';
+                    currentGame = null;
+                    pendingGame = null;
+                } else {
+                    alert('You lose!');
+                    gameArea.innerHTML = '';
+                    currentGame = null;
+                    pendingGame = null;
+                }
+            };
+        }
+
+        function customGame() {
+            const questions = [
+                {question: "Can a match box?", answer: "no but a tin can"},
+                {question: "What is 2 + 2?", answer: "4"},
+                {question: "What is the largest planet in our solar system?", answer: "Jupiter"},
+                {question: "Who wrote 'To Kill a Mockingbird'?", answer: "Harper Lee"},
+                {question: "What is the boiling point of water in Celsius?", answer: "100"}
+            ];
+
+            gameArea.innerHTML = `
+                <p>All numbered questions will be numerically answered, not with 'two' but instead, '2'</p>
+                <div id="quizArea"></div>
+                <p id="score"></p>
+            `;
+
+            let score = 0;
+            let currentQuestion = 0;
+
+            function askQuestion() {
+                if (currentQuestion < questions.length) {
+                    const quizArea = document.getElementById('quizArea');
+                    quizArea.innerHTML = `
+                        <p>${questions[currentQuestion].question}</p>
+                        <input type="text" id="answer">
+                        <button onclick="checkAnswer()">Submit</button>
+                    `;
+                } else {
+                    document.getElementById('score').textContent = `You scored ${score} out of ${questions.length}`;
+                }
+            }
+
+            window.checkAnswer = function() {
+                const userAnswer = document.getElementById('answer').value.toLowerCase();
+                if (userAnswer === questions[currentQuestion].answer.toLowerCase()) {
+                    alert('Correct!');
+                    score++;
+                    currentQuestion++;
+                } else if (userAnswer === '') {
+                    alert('You did not type an answer.');
+                } else if (userAnswer.length < 2) {
+                    alert('Please answer the question.');
+                } else {
+                    alert('Incorrect.');
+                    currentQuestion++;
+                }
+                askQuestion();
+            };
+
+            askQuestion();
+        }
+
+        function showAlert() {
+            document.getElementById('customAlert').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function closeAlert() {
+            document.getElementById('customAlert').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function clearGameArea() {
+            gameArea.innerHTML = '';
+            currentGame = null;
+            closeAlert();
+        }
+
+        document.getElementById('launchAnyways').addEventListener('click', function() {
+            closeAlert();
+            if (pendingGame !== null) {
+                currentGame = pendingGame;
+                pendingGame = null;
+                selectGame(currentGame);
+            }
+        });
+    </script>
+</body>
+</html>

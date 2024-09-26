@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GamePub Rewrite</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-gap: 10px;
+            justify-content: center;
+        }
+        .goback-button { margin-top: 20px; padding: 10px 20px; font-size: 1em; cursor: pointer; background: white; color: black; border-radius: 15px; border: 2px solid Black;}
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .matched {
+            background-color: #8BC34A;
+            pointer-events: none;
+        }
+        /* Dark mode styles */
+        .dark-mode {
+            background-color: black;
+            color: white;
+        }
+        .dark-mode .goback-button {
+            background: black;
+            color: white;
+            border: 2px solid white;
+        }
+        .dark-mode .card {
+            background-color: #333;
+            color: white;
+        }
+        .dark-mode .matched {
+            background-color: #8BC34A;
+        }
+    </style>
+</head>
+<body>
+    <h1>GamePub Rewrite</h1>
+    <button class="goback-button" onclick="back()">Go Back</button>
+    <button onclick="window.location.href = 'memory.html'">Reset</button>
+    <button onclick="dark()">Dark Mode</button>
+    <div class="grid" id="grid"></div>
+    <p id="message"></p>
+
+    <script>
+        const cardsArray = ['A', 'A', 'B', 'B', 'C', 'C', 'D', 'D', 'E', 'E', 'F', 'F', 'G', 'G', 'H', 'H'];
+        let firstCard = null;
+        let secondCard = null;
+        let matchedPairs = 0;
+        let canClick = true; // Variable to track if the player can click
+
+        // Check and apply dark mode state from localStorage
+        if (localStorage.getItem('Dark') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+
+        function dark() {
+            if (document.body.classList.contains('dark-mode')) {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('Dark', 'false');
+            } else {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('Dark', 'true');
+            }
+        }
+
+        function back() {
+            const grid = document.getElementById('grid');
+            const cards = grid.getElementsByClassName('card');
+            let allEmpty = true;
+            for (let card of cards) {
+                if (card.innerText !== '') {
+                    allEmpty = false;
+                    break;
+                }
+            }
+            if (allEmpty) {
+                window.location.href = 'index.html'
+            } else {
+                alert('Please empty the board before going back to avoid errors.');
+            }
+        }
+        
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function createBoard() {
+            const grid = document.getElementById('grid');
+            shuffle(cardsArray);
+            cardsArray.forEach((card) => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                cardElement.dataset.value = card;
+                cardElement.addEventListener('click', flipCard);
+                grid.appendChild(cardElement);
+            });
+        }
+
+        function flipCard() {
+            if (!canClick || this === firstCard) return; // Check if the player can click
+            this.innerText = this.dataset.value;
+            if (!firstCard) {
+                firstCard = this;
+            } else {
+                secondCard = this;
+                canClick = false; // Disable clicking
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            if (firstCard.dataset.value === secondCard.dataset.value) {
+                firstCard.classList.add('matched');
+                secondCard.classList.add('matched');
+                matchedPairs++;
+                if (matchedPairs === cardsArray.length / 2) {
+                    document.getElementById('message').innerText = 'Congratulations! You matched all pairs!';
+                    alert('Good job!')
+                    window.location.href = 'memory.html'
+                }
+                resetCards();
+            } else {
+                setTimeout(() => {
+                    firstCard.innerText = '';
+                    secondCard.innerText = '';
+                    resetCards();
+                }, 1000);
+            }
+        }
+
+        function resetCards() {
+            firstCard = null;
+            secondCard = null;
+            canClick = true; // Re-enable clicking
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
