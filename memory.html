@@ -95,6 +95,21 @@
     <p id="message"></p>
 
     <script>
+        const originalAlert = window.alert;
+        window.alert = function(message) {
+            const authorizedAlerts = [
+                "Clicking too fast.",
+                "Suspicious Activity Detected.",
+                "Cheating has been detected.",
+                "Good job!",
+                "Attempted to fix glitches."
+            ];
+            if (authorizedAlerts.includes(message)) {
+                originalAlert(message);
+            } else {
+                console.log("Blocked unauthorized alert:", message);
+            }
+        };
         if (localStorage.getItem('BanMemory') === 'true') {
             window.location.href = 'index.html'
         }
