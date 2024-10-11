@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hello!</title>
 </head>
 <body>
-    <h1>
-        Loading...
-    </h1>
+    <h1>Loading...</h1>
     <div id="hello"></div>
-<script>
-    localStorage.removeItem('passwordEntered');
-    window.location.href = 'index.html'; // Corrected this line
-    localStorage.setItem('Executed', 'true');
-    localStroage.removeItem('BanMemory');
-</script>
+
+    <script>
+        localStorage.removeItem('passwordEntered');
+        localStorage.setItem('Executed', 'true');
+        localStorage.removeItem('BanMemory');
+        window.location.href = 'index.html';
+    </script>
 </body>
 </html>
