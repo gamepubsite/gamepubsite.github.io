@@ -107,11 +107,11 @@
             if (authorizedAlerts.includes(message)) {
                 originalAlert(message);
             } else {
-                console.log("Blocked unauthorized alert:", message);
+                alert('Blocked Alert')
             }
         };
         if (localStorage.getItem('BanMemory') === 'true') {
-            window.location.href = 'index.html'
+            window.location.href = 'setup.html'
         }
         const cardsArray = ['A', 'A', 'B', 'B', 'C', 'C', 'D', 'D', 'E', 'E', 'F', 'F', 'G', 'G', 'H', 'H'];
         let firstCard = null;
@@ -153,7 +153,7 @@
                 }
             }
             if (allEmpty) {
-                window.location.href = 'index.html'
+                window.location.href = 'setup.html'
             } else {
                 Reset();
             }
@@ -250,7 +250,7 @@
         }
         
         function ResetAndHome() {
-            window.location.href = 'index.html'
+            window.location.href = 'setup.html'
         }
         
         function checkForFunctions() {
@@ -261,7 +261,7 @@
             if (targetFunctions.length > 0) {
                 const currentFile = window.location.pathname.split('/').pop();
                 if (filesToCheck.includes(currentFile)) {
-                    window.location.href = "index.html";
+                    window.location.href = "setup.html";
                 }
             }
         }
@@ -291,7 +291,7 @@
         if (card.innerText !== '' && card.innerText !== atob(card.dataset.value)) {
             alert("Cheating has been detected.");
             localStorage.setItem('BanMemory', 'true');
-            window.location.href = 'index.html';
+            window.location.href = 'setup.html';
             break;
         }
     }
