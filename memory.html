@@ -95,6 +95,10 @@
     <p id="message"></p>
 
     <script>
+        let ban = localStorage.getItem('BanMemory')
+        if (ban === true) {
+            window.location.href = 'index.html'
+        }
         const cardsArray = ['A', 'A', 'B', 'B', 'C', 'C', 'D', 'D', 'E', 'E', 'F', 'F', 'G', 'G', 'H', 'H'];
         let firstCard = null;
         let secondCard = null;
@@ -272,6 +276,7 @@
             for (let card of cards) {
                 if (card.innerText !== '' && card.innerText !== atob(card.dataset.value)) {
                     alert("Cheating has been detected.")
+                    localStorage.setItem('BanMemory', 'true')
                     window.location.href = 'index.html'
                     resetGame();
                     break;
