@@ -95,6 +95,7 @@
     <p id="message"></p>
 
     <script>
+        let cheatYes = false;
         const originalAlert = window.alert;
         window.alert = function(message) {
             const authorizedAlerts = [
