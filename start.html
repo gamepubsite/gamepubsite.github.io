@@ -9,10 +9,10 @@
     </h1>
     <div id="hello"></div>
 <script>
-    localStroage.setItem('BanMemory', 'false');
     localStorage.removeItem('passwordEntered');
     window.location.href = 'index.html'; // Corrected this line
     localStorage.setItem('Executed', 'true');
+    localStroage.removeItem('BanMemory');
 </script>
 </body>
 </html>
