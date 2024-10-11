@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GamePub Rewrite</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-gap: 10px;
+            justify-content: center;
+        }
+        .goback-button { margin-top: 20px; padding: 10px 20px; font-size: 1em; cursor: pointer; background: white; color: black; border-radius: 15px; border: 2px solid Black;}
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .matched {
+            background-color: #8BC34A;
+            pointer-events: none;
+        }
+        .alert {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+        }
+        .alert button {
+            margin-top: 10px;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        /* Dark mode styles */
+        .dark-mode {
+            background-color: black;
+            color: white;
+        }
+        .dark-mode .goback-button {
+            background: black;
+            color: white;
+            border: 2px solid white;
+        }
+        .dark-mode .card {
+            background-color: #333;
+            color: white;
+        }
+        .dark-mode .matched {
+            background-color: #8BC34A;
+        }
+        .dark-mode .alert {
+            background-color: black;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>GamePub Rewrite</h1>
+    <button class="goback-button" onclick="back()">Go Back</button>
+    <button onclick="Reset()">Reset</button>
+    <button onclick="dark()">Dark Mode</button>
+    <button onclick="Fix()">Fix Errors</button>
+    <div class="grid" id="grid"></div>
+    <div id="customAlert" class="alert">
+        <p>Reset The Board</p>
+        <button onclick="resetGame()">Reset</button>
+        <button onclick="ResetAndHome()">Reset and Go Home</button>
+        <button onclick="Cancel()">Cancel</button>
+    </div>
+    <div id="overlay" class="overlay"></div>
+    <p id="message"></p>
+
+    <script>
+        let ban = localStorage.getItem('BanMemory')
+        if (ban === true) {
+            window.location.href = 'index.html'
+        }
+        const cardsArray = ['A', 'A', 'B', 'B', 'C', 'C', 'D', 'D', 'E', 'E', 'F', 'F', 'G', 'G', 'H', 'H'];
+        let firstCard = null;
+        let secondCard = null;
+        let matchedPairs = 0;
+        let canClick = true;
+        let clickCount = 0;
+
+        // Anti-cheat: Add these variables
+        let lastClickTime = 0;
+        let gameStartTime = Date.now();
+
+        // Anti-cheat: Encrypt card values
+        const encryptedCards = cardsArray.map(card => btoa(card));
+
+        // Check and apply dark mode state from localStorage
+        if (localStorage.getItem('Dark') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+
+        function dark() {
+            if (document.body.classList.contains('dark-mode')) {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('Dark', 'false');
+            } else {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('Dark', 'true');
+            }
+        }
+
+        function back() {
+            const grid = document.getElementById('grid');
+            const cards = grid.getElementsByClassName('card');
+            let allEmpty = true;
+            for (let card of cards) {
+                if (card.innerText !== '') {
+                    allEmpty = false;
+                    break;
+                }
+            }
+            if (allEmpty) {
+                window.location.href = 'index.html'
+            } else {
+                Reset();
+            }
+        }
+        
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function createBoard() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = ''; // Clear existing cards
+            shuffle(encryptedCards);
+            encryptedCards.forEach((card) => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                cardElement.dataset.value = card;
+                cardElement.addEventListener('click', flipCard);
+                grid.appendChild(cardElement);
+            });
+        }
+        
+        function Fix() {
+            canClick = true;
+            alert("Attempted to fix glitches.")
+        }
+
+        function flipCard() {
+            if (!canClick || this === firstCard) return;
+
+            // Anti-cheat: Check for rapid clicking
+            const currentTime = Date.now();
+            if (currentTime - lastClickTime < 100) {
+                alert("Clicking too fast.")
+                return;
+            }
+            lastClickTime = currentTime;
+
+            // Anti-cheat: Decrypt card value
+            this.innerText = atob(this.dataset.value);
+            clickCount++;
+
+            if (!firstCard) {
+                firstCard = this;
+            } else {
+                secondCard = this;
+                canClick = false;
+                checkMatch();
+            }
+
+            // Anti-cheat: Check for unrealistic game progress
+            checkGameProgress();
+        }
+
+        function checkMatch() {
+            if (firstCard.dataset.value === secondCard.dataset.value) {
+                firstCard.classList.add('matched');
+                secondCard.classList.add('matched');
+                matchedPairs++;
+                if (matchedPairs === cardsArray.length / 2) {
+                    document.getElementById('message').innerText = 'Congratulations! You matched all pairs!';
+                    setTimeout(() => {
+                        alert('Good job!')
+                        resetGame();
+                    }, 500);
+                }
+                resetCards();
+            } else {
+                setTimeout(() => {
+                    firstCard.innerText = '';
+                    secondCard.innerText = '';
+                    resetCards();
+                }, 1500);
+            }
+        }
+
+        function resetCards() {
+            firstCard = null;
+            secondCard = null;
+            canClick = true;
+        }
+        
+        function Reset() {
+            document.getElementById('customAlert').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+        
+        function Cancel() {
+            document.getElementById('customAlert').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+        
+        function ResetAndHome() {
+            window.location.href = 'index.html'
+        }
+        
+        function checkForFunctions() {
+            const filesToCheck = ['index.html', 'keep.html', 'start.html', 'memory.html', 'new.html'];
+            const functionNames = Object.keys(window).filter(key => typeof window[key] === 'function');
+            const targetFunctions = functionNames.filter(name => name.includes('win') || name.includes('reveal'));
+            
+            if (targetFunctions.length > 0) {
+                const currentFile = window.location.pathname.split('/').pop();
+                if (filesToCheck.includes(currentFile)) {
+                    window.location.href = "index.html";
+                }
+            }
+        }
+
+        // Anti-cheat: Add these new functions
+        function checkGameProgress() {
+            const elapsedTime = (Date.now() - gameStartTime) / 1000; // in seconds
+            const expectedMaxPairs = Math.min(8, Math.floor(elapsedTime / 5)); // Assume max 1 pair per 5 seconds
+
+            if (matchedPairs > expectedMaxPairs) {
+                alert("Suspicious Activity Detected.")
+                resetGame();
+            }
+        }
+
+        function preventConsoleCheat() {
+            const originalConsoleLog = console.log;
+            console.log = function() {
+                originalConsoleLog.apply(console, arguments);
+                checkForCheatAttempt();
+            };
+        }
+
+        function checkForCheatAttempt() {
+            const cards = document.getElementsByClassName('card');
+            for (let card of cards) {
+                if (card.innerText !== '' && card.innerText !== atob(card.dataset.value)) {
+                    alert("Cheating has been detected.")
+                    localStorage.setItem('BanMemory', 'true')
+                    window.location.href = 'index.html'
+                    resetGame();
+                    break;
+                }
+            }
+        }
+
+        function resetGame() {
+            firstCard = null;
+            secondCard = null;
+            matchedPairs = 0;
+            clickCount = 0;
+            gameStartTime = Date.now();
+            createBoard();
+            document.getElementById('message').innerText = '';
+            Cancel();
+        }
+
+        // Anti-cheat: Disable right-click context menu
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // Call the function every second
+        setInterval(checkForFunctions, 100);
+
+        // Anti-cheat: Initialize these
+        createBoard();
+        preventConsoleCheat();
+        setInterval(checkForCheatAttempt, 1);
+    </script>
+</body>
+</html>
