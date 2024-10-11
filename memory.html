@@ -95,8 +95,7 @@
     <p id="message"></p>
 
     <script>
-        let ban = localStorage.getItem('BanMemory')
-        if (ban === true) {
+        if (localStorage.getItem('BanMemory') === 'true') {
             window.location.href = 'index.html'
         }
         const cardsArray = ['A', 'A', 'B', 'B', 'C', 'C', 'D', 'D', 'E', 'E', 'F', 'F', 'G', 'G', 'H', 'H'];
