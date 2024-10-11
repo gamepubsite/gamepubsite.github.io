@@ -95,6 +95,7 @@
     <p id="message"></p>
 
     <script>
+        let cheatYes = false;
         const originalAlert = window.alert;
         window.alert = function(message) {
             const authorizedAlerts = [
@@ -289,6 +290,7 @@
     const cards = document.getElementsByClassName('card');
     for (let card of cards) {
         if (card.innerText !== '' && card.innerText !== atob(card.dataset.value)) {
+            cheatYes = true;
             alert("Cheating has been detected.");
             localStorage.setItem('BanMemory', 'true');
             window.location.href = 'setup.html';
@@ -317,7 +319,9 @@
         // Anti-cheat: Initialize these
         createBoard();
         preventConsoleCheat();
-        setInterval(checkForCheatAttempt, 2000);
+        if (!cheatYes) { 
+            setInterval(checkForCheatAttempt, 100);
+        }
     </script>
 </body>
 </html>
