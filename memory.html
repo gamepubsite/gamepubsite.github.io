@@ -271,17 +271,16 @@
         }
 
         function checkForCheatAttempt() {
-            const cards = document.getElementsByClassName('card');
-            for (let card of cards) {
-                if (card.innerText !== '' && card.innerText !== atob(card.dataset.value)) {
-                    alert("Cheating has been detected.")
-                    localStorage.setItem('BanMemory', 'true')
-                    window.location.href = 'index.html'
-                    resetGame();
-                    break;
-                }
-            }
+    const cards = document.getElementsByClassName('card');
+    for (let card of cards) {
+        if (card.innerText !== '' && card.innerText !== atob(card.dataset.value)) {
+            alert("Cheating has been detected.");
+            localStorage.setItem('BanMemory', 'true');
+            window.location.href = 'index.html';
+            break;
         }
+    }
+}
 
         function resetGame() {
             firstCard = null;
