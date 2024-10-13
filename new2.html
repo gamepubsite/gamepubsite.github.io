@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Invaders Clone</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+            font-family: Arial, sans-serif;
+        }
+        .game-container {
+            position: relative;
+        }
+        #gameCanvas {
+            border: 2px solid #fff;
+            background-color: #000;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            font-size: 20px;
+        }
+        #wave {
+            position: absolute;
+            top: 40px;
+            left: 10px;
+            color: #fff;
+            font-size: 20px;
+        }
+        #mobileControls {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+        .control-btn {
+            background-color: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="score">Score: 0</div>
+        <div id="wave">Wave: 1</div>
+        <div id="mobileControls">
+            <button id="leftBtn" class="control-btn">←</button>
+            <button id="shootBtn" class="control-btn">Shoot</button>
+            <button id="rightBtn" class="control-btn">→</button>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const waveElement = document.getElementById('wave');
+
+        if (!canvas) {
+            console.error('Canvas element not found');
+        } else if (!ctx) {
+            console.error('Unable to get 2D context from canvas');
+        } else {
+            console.log('Canvas and context successfully loaded');
+        }
+
+        canvas.width = 800;
+        canvas.height = 600;
+
+        const gameState = (function() {
+            let score = 0;
+            let wave = 1;
+            let gameOver = false;
+            let isInvincible = false;
+
+            return {
+                getScore: () => score,
+                setScore: (newScore) => { score = newScore; },
+                getWave: () => wave,
+                setWave: (newWave) => { wave = newWave; },
+                isGameOver: () => gameOver,
+                setGameOver: (state) => { gameOver = state; },
+                toggleInvincibility: () => {
+                    isInvincible = !isInvincible;
+                    console.log(`Invincibility ${isInvincible ? 'activated' : 'deactivated'}`);
+                },
+                isPlayerInvincible: () => isInvincible
+            };
+        })();
+
+        class Player {
+            constructor() {
+                this.width = 50;
+                this.height = 50;
+                this.x = canvas.width / 2 - this.width / 2;
+                this.y = canvas.height - this.height - 10;
+                this.speed = 5;
+            }
+
+            draw() {
+                ctx.fillStyle = '#00ff00';
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            moveLeft() {
+                if (this.x > 0) this.x -= this.speed;
+            }
+
+            moveRight() {
+                if (this.x < canvas.width - this.width) this.x += this.speed;
+            }
+        }
+
+        class Bullet {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.width = 5;
+                this.height = 15;
+                this.speed = 7;
+            }
+
+            draw() {
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            update() {
+                this.y -= this.speed;
+            }
+        }
+
+        class Invader {
+            constructor(x, y, speed) {
+                this.x = x;
+                this.y = y;
+                this.width = 40;
+                this.height = 40;
+                this.speed = speed;
+            }
+
+            draw() {
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            update() {
+                this.y += this.speed;
+                this.x += Math.sin(this.y * 0.1) * 2;
+            }
+        }
+
+        const player = new Player();
+        let bullets = [];
+        let invaders = [];
+        let isLeftPressed = false;
+        let isRightPressed = false;
+        let canShoot = true;
+
+        function createInvaders() {
+            const baseSpeed = 0.5 + (gameState.getWave() * 0.1);
+            const invaderCount = Math.min(5 + gameState.getWave(), 8);
+            const rows = Math.min(3 + Math.floor(gameState.getWave() / 3), 5);
+
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < invaderCount; j++) {
+                    const speed = baseSpeed + Math.random() * 0.5;
+                    invaders.push(new Invader(j * 80 + 60, i * 60 + 30, speed));
+                }
+            }
+        }
+
+        function handleKeyDown(e) {
+            if (gameState.isGameOver()) return;
+            if (e.key === 'ArrowLeft') isLeftPressed = true;
+            if (e.key === 'ArrowRight') isRightPressed = true;
+            if (e.key === ' ' && canShoot) {
+                bullets.push(new Bullet(player.x + player.width / 2 - 2.5, player.y));
+            }
+            if (e.key.toLowerCase() === 'i') {
+                gameState.toggleInvincibility();
+            }
+        }
+
+        function handleKeyUp(e) {
+            if (e.key === 'ArrowLeft') isLeftPressed = false;
+            if (e.key === 'ArrowRight') isRightPressed = false;
+        }
+
+        function updatePlayerPosition() {
+            if (isLeftPressed) player.moveLeft();
+            if (isRightPressed) player.moveRight();
+        }
+
+        function checkCollision(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+
+        function endGame() {
+            gameState.setGameOver(true);
+            ctx.fillStyle = 'white';
+            ctx.font = '48px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Game Over!', canvas.width / 2, canvas.height / 2);
+            ctx.font = '24px Arial';
+            ctx.fillText('Press R to restart', canvas.width / 2, canvas.height / 2 + 40);
+        }
+
+        function nextWave() {
+            gameState.setWave(gameState.getWave() + 1);
+            waveElement.textContent = `Wave: ${gameState.getWave()}`;
+            createInvaders();
+            player.speed = Math.min(5 + gameState.getWave() * 0.5, 10);
+        }
+
+        function updateGame() {
+            if (gameState.isGameOver()) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            updatePlayerPosition();
+            player.draw();
+
+            bullets.forEach((bullet, bulletIndex) => {
+                bullet.update();
+                bullet.draw();
+
+                if (bullet.y < 0) bullets.splice(bulletIndex, 1);
+
+                invaders.forEach((invader, invaderIndex) => {
+                    if (checkCollision(bullet, invader)) {
+                        bullets.splice(bulletIndex, 1);
+                        invaders.splice(invaderIndex, 1);
+                        gameState.setScore(gameState.getScore() + 10);
+                        scoreElement.textContent = `Score: ${gameState.getScore()}`;
+                    }
+                });
+            });
+
+            invaders.forEach((invader, index) => {
+                invader.update();
+                invader.draw();
+
+                if (invader.y + invader.height > canvas.height) {
+                    endGame();
+                }
+
+                if (checkCollision(player, invader) && !gameState.isPlayerInvincible()) {
+                    endGame();
+                }
+            });
+
+            if (invaders.length === 0) {
+                nextWave();
+            }
+
+            requestAnimationFrame(updateGame);
+        }
+
+        function restartGame() {
+            player.x = canvas.width / 2 - player.width / 2;
+            player.speed = 5;
+            bullets = [];
+            invaders = [];
+            gameState.setScore(0);
+            gameState.setWave(1);
+            gameState.setGameOver(false);
+            scoreElement.textContent = 'Score: 0';
+            waveElement.textContent = 'Wave: 1';
+            createInvaders();
+            updateGame();
+        }
+
+        createInvaders();
+        document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('keyup', handleKeyUp);
+        document.addEventListener('keydown', (e) => {
+            if (gameState.isGameOver() && e.key.toLowerCase() === 'r') {
+                restartGame();
+            }
+        });
+
+        console.log('Starting game loop');
+        updateGame();
+
+        // Mobile controls
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
+        const shootBtn = document.getElementById('shootBtn');
+
+        function handleMobileControls() {
+            let leftInterval, rightInterval;
+
+            leftBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                leftInterval = setInterval(() => player.moveLeft(), 16);
+            });
+
+            leftBtn.addEventListener('touchend', () => {
+                clearInterval(leftInterval);
+            });
+
+            rightBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                rightInterval = setInterval(() => player.moveRight(), 16);
+            });
+
+            rightBtn.addEventListener('touchend', () => {
+                clearInterval(rightInterval);
+            });
+
+            shootBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (!gameState.isGameOver()) {
+                    bullets.push(new Bullet(player.x + player.width / 2 - 2.5, player.y));
+                }
+            });
+        }
+
+        function resizeCanvas() {
+            const container = document.querySelector('.game-container');
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+            const scale = Math.min(containerWidth / 800, containerHeight / 600);
+
+            canvas.style.width = `${800 * scale}px`;
+            canvas.style.height = `${600 * scale}px`;
+        }
+
+        handleMobileControls();
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Anti-cheat system
+        const originalFunctions = {
+            checkCollision: checkCollision,
+            endGame: endGame,
+        };
+
+        let cheatsDetected = 0;
+
+        function detectCheats() {
+            if (checkCollision !== originalFunctions.checkCollision) {
+                console.warn("Cheat detected: checkCollision function modified");
+                cheatsDetected++;
+            }
+            if (endGame !== originalFunctions.endGame) {
+                console.warn("Cheat detected: endGame function modified");
+                cheatsDetected++;
+            }
+            if (gameState.isPlayerInvincible()) {
+                console.warn("Cheat detected: Invincibility activated");
+                cheatsDetected++;
+            }
+            
+            if (cheatsDetected > 0) {
+                console.error(`${cheatsDetected} cheat(s) detected. Game integrity compromised.`);
+                disableGame();
+            }
+        }
+
+        function disableGame() {
+            gameState.setGameOver(true);
+            ctx.fillStyle = 'red';
+            ctx.font = '48px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Cheating Detected!', canvas.width / 2, canvas.height / 2);
+            ctx.font = '24px Arial';
+            ctx.fillText('Game disabled due to unfair play', canvas.width / 2, canvas.height / 2 + 40);
+        }
+
+        setInterval(detectCheats, 1000); // Check for cheats every second
+    </script>
+</body>
+</html>
