@@ -114,6 +114,7 @@
     <div id="overlay" class="overlay"></div>
 
     <script>
+document.addEventListener('contextmenu', event => event.preventDefault());
         const gameArea = document.getElementById('gameArea');
         let currentGame = null;
         let pendingGame = null;
