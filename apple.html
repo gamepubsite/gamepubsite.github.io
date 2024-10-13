@@ -5,22 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enhanced Fruit Catcher Game</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
-<link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16">
-<link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+    <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16">
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            transition: all 0.3s ease;
+        }
         canvas {
             border: 1px solid black;
         }
         #gameInfo {
             margin-top: 10px;
         }
-        .back { margin-top: 20px; padding: 10px 20px; font-size: 1em; cursor: pointer; background: white; color: black; border-radius: 15px; border: 2px solid Black;}
+        .back, .mode-button { 
+            margin-top: 20px; 
+            padding: 10px 20px; 
+            font-size: 1em; 
+            cursor: pointer; 
+            background: white; 
+            color: black; 
+            border-radius: 15px; 
+            border: 2px solid Black;
+        }
+        /* Dark mode styles */
+        .dark-mode {
+            background-color: #222;
+            color: #fff;
+        }
+        .dark-mode canvas {
+            border-color: #fff;
+        }
+        .dark-mode .back, .dark-mode .mode-button {
+            background: #444;
+            color: #fff;
+            border-color: #fff;
+        }
+        /* Halloween mode styles */
+        .halloween-mode {
+            background-color: #1a1a1a;
+            color: #ff6600;
+            font-family: 'Creepster', cursive;
+        }
+        .halloween-mode canvas {
+            border-color: #ff6600;
+        }
+        .halloween-mode .back, .halloween-mode .mode-button {
+            background: #ff6600;
+            color: #1a1a1a;
+            border-color: #ff6600;
+            font-family: 'Creepster', cursive;
+        }
     </style>
 </head>
 <body>
     <div id="back">
         <button class="back" onclick="window.location.href = 'setup.html'">Go Back</button>
+        <button class="mode-button" onclick="toggleDarkMode()">Dark Mode</button>
+        <button class="mode-button" onclick="toggleHalloweenMode()">Halloween Mode</button>
     </div>
     <canvas id="gameCanvas" width="480" height="360"></canvas>
     <div id="gameInfo">
@@ -143,7 +186,7 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // Draw player
-            ctx.fillStyle = 'blue';
+            ctx.fillStyle = document.body.classList.contains('halloween-mode') ? '#ff6600' : 'blue';
             ctx.fillRect(player.x, player.y, player.width, player.height);
 
             // Draw fruits
@@ -167,11 +210,20 @@
         }
 
         function getFruitColor(type) {
-            switch (type) {
-                case 'apple': return 'red';
-                case 'banana': return 'yellow';
-                case 'orange': return 'orange';
-                case 'poison': return 'purple';
+            if (document.body.classList.contains('halloween-mode')) {
+                switch (type) {
+                    case 'apple': return '#ff4500';
+                    case 'banana': return '#ffd700';
+                    case 'orange': return '#ffa500';
+                    case 'poison': return '#8b008b';
+                }
+            } else {
+                switch (type) {
+                    case 'apple': return 'red';
+                    case 'banana': return 'yellow';
+                    case 'orange': return 'orange';
+                    case 'poison': return 'purple';
+                }
             }
         }
 
@@ -215,6 +267,38 @@
 
         function updateLevel() {
             document.getElementById('levelDisplay').textContent = level;
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.remove('halloween-mode');
+            localStorage.setItem('Halloween', 'false');
+            if (document.body.classList.contains('dark-mode')) {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('Dark', 'false');
+            } else {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('Dark', 'true');
+            }
+        }
+
+        function toggleHalloweenMode() {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('Dark', 'false');
+            if (document.body.classList.contains('halloween-mode')) {
+                document.body.classList.remove('halloween-mode');
+                localStorage.setItem('Halloween', 'false');
+            } else {
+                document.body.classList.add('halloween-mode');
+                localStorage.setItem('Halloween', 'true');
+            }
+        }
+
+        // Check and apply saved mode
+        if (localStorage.getItem('Dark') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+        if (localStorage.getItem('Halloween') === 'true') {
+            document.body.classList.add('halloween-mode');
         }
 
         // Start the game

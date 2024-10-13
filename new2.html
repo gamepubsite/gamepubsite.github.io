@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Space Invaders Clone</title>
+    <title>GamePub V2 (Invaders) - Halloween Edition</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
-<link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16">
-<link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+    <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16">
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
     <style>
         body {
             margin: 0;
             padding: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             background-color: #000;
             font-family: Arial, sans-serif;
+            transition: all 0.3s ease;
         }
         .game-container {
             position: relative;
@@ -26,19 +28,18 @@
             border: 2px solid #fff;
             background-color: #000;
         }
-        #score {
+        #score, #wave {
             position: absolute;
-            top: 10px;
-            left: 10px;
             color: #fff;
             font-size: 20px;
         }
+        #score {
+            top: 10px;
+            left: 10px;
+        }
         #wave {
-            position: absolute;
             top: 40px;
             left: 10px;
-            color: #fff;
-            font-size: 20px;
         }
         #mobileControls {
             position: absolute;
@@ -57,12 +58,50 @@
             font-size: 20px;
             cursor: pointer;
         }
-        .back { margin-top: 20px; padding: 10px 20px; font-size: 1em; cursor: pointer; background: white; color: black; border-radius: 15px; border: 2px solid Black;}
+        .back, .mode-btn {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            background: white;
+            color: black;
+            border-radius: 15px;
+            border: 2px solid Black;
+        }
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #1a1a1a;
+        }
+        body.dark-mode .back,
+        body.dark-mode .mode-btn {
+            background: #333;
+            color: #fff;
+            border-color: #fff;
+        }
+        /* Halloween mode styles */
+        body.halloween-mode {
+            background-color: #1a1a1a;
+            color: #ff6600;
+            font-family: 'Creepster', cursive;
+        }
+        body.halloween-mode .back,
+        body.halloween-mode .mode-btn {
+            background: #ff6600;
+            color: #1a1a1a;
+            border-color: #ff6600;
+            font-family: 'Creepster', cursive;
+        }
+        body.halloween-mode #gameCanvas {
+            border-color: #ff6600;
+            box-shadow: 0 0 10px #ff6600;
+        }
     </style>
 </head>
 <body>
-    <div class="back">
+    <div>
         <button class="back" onclick="window.location.href = 'setup.html'">Go Back</button>
+        <button class="mode-btn" onclick="toggleDarkMode()">Dark Mode</button>
+        <button class="mode-btn" onclick="toggleHalloweenMode()">Halloween Mode</button>
     </div>
     <div class="game-container">
         <canvas id="gameCanvas" width="800" height="600"></canvas>
@@ -96,7 +135,6 @@
             let wave = 1;
             let gameOver = false;
             let isInvincible = false;
-
             return {
                 getScore: () => score,
                 setScore: (newScore) => { score = newScore; },
@@ -120,16 +158,13 @@
                 this.y = canvas.height - this.height - 10;
                 this.speed = 5;
             }
-
             draw() {
-                ctx.fillStyle = '#00ff00';
+                ctx.fillStyle = document.body.classList.contains('halloween-mode') ? '#ff6600' : '#00ff00';
                 ctx.fillRect(this.x, this.y, this.width, this.height);
             }
-
             moveLeft() {
                 if (this.x > 0) this.x -= this.speed;
             }
-
             moveRight() {
                 if (this.x < canvas.width - this.width) this.x += this.speed;
             }
@@ -143,12 +178,10 @@
                 this.height = 15;
                 this.speed = 7;
             }
-
             draw() {
-                ctx.fillStyle = '#fff';
+                ctx.fillStyle = document.body.classList.contains('halloween-mode') ? '#ff6600' : '#fff';
                 ctx.fillRect(this.x, this.y, this.width, this.height);
             }
-
             update() {
                 this.y -= this.speed;
             }
@@ -162,12 +195,10 @@
                 this.height = 40;
                 this.speed = speed;
             }
-
             draw() {
-                ctx.fillStyle = '#ff0000';
+                ctx.fillStyle = document.body.classList.contains('halloween-mode') ? '#4a4a4a' : '#ff0000';
                 ctx.fillRect(this.x, this.y, this.width, this.height);
             }
-
             update() {
                 this.y += this.speed;
                 this.x += Math.sin(this.y * 0.1) * 2;
@@ -186,7 +217,6 @@
             const baseSpeed = 0.5 + (gameState.getWave() * 0.1);
             const invaderCount = Math.min(5 + gameState.getWave(), 8);
             const rows = Math.min(3 + Math.floor(gameState.getWave() / 3), 5);
-
             for (let i = 0; i < rows; i++) {
                 for (let j = 0; j < invaderCount; j++) {
                     const speed = baseSpeed + Math.random() * 0.5;
@@ -242,25 +272,20 @@
 
         function updateGame() {
             if (gameState.isGameOver()) return;
-
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             updatePlayerPosition();
             player.draw();
 
-            // Handle continuous shooting
             if (isSpacePressed && canShoot) {
                 bullets.push(new Bullet(player.x + player.width / 2 - 2.5, player.y));
                 canShoot = false;
-                setTimeout(() => { canShoot = true; }, 1); // Adjust fire rate as needed
+                setTimeout(() => { canShoot = true; }, 1);
             }
 
             bullets.forEach((bullet, bulletIndex) => {
                 bullet.update();
                 bullet.draw();
-
                 if (bullet.y < 0) bullets.splice(bulletIndex, 1);
-
                 invaders.forEach((invader, invaderIndex) => {
                     if (checkCollision(bullet, invader)) {
                         bullets.splice(bulletIndex, 1);
@@ -274,11 +299,9 @@
             invaders.forEach((invader, index) => {
                 invader.update();
                 invader.draw();
-
                 if (invader.y + invader.height > canvas.height) {
                     endGame();
                 }
-
                 if (checkCollision(player, invader) && !gameState.isPlayerInvincible()) {
                     endGame();
                 }
@@ -324,30 +347,24 @@
 
         function handleMobileControls() {
             let leftInterval, rightInterval;
-
             leftBtn.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 leftInterval = setInterval(() => player.moveLeft(), 16);
             });
-
             leftBtn.addEventListener('touchend', () => {
                 clearInterval(leftInterval);
             });
-
             rightBtn.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 rightInterval = setInterval(() => player.moveRight(), 16);
             });
-
             rightBtn.addEventListener('touchend', () => {
                 clearInterval(rightInterval);
             });
-
             shootBtn.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 isSpacePressed = true;
             });
-
             shootBtn.addEventListener('touchend', () => {
                 isSpacePressed = false;
             });
@@ -358,7 +375,6 @@
             const containerWidth = container.clientWidth;
             const containerHeight = container.clientHeight;
             const scale = Math.min(containerWidth / 800, containerHeight / 600);
-
             canvas.style.width = `${800 * scale}px`;
             canvas.style.height = `${600 * scale}px`;
         }
@@ -406,6 +422,39 @@
         }
 
         setInterval(detectCheats, 1000); // Check for cheats every second
-    </script>
+        
+        function toggleDarkMode() {
+            document.body.classList.remove('halloween-mode');
+            localStorage.setItem('Halloween', 'false');
+            if (document.body.classList.contains('dark-mode')) {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('Dark', 'false');
+            } else {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('Dark', 'true');
+            }
+        }
+
+    function toggleHalloweenMode() {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('Dark', 'false');
+            if (document.body.classList.contains('halloween-mode')) {
+                document.body.classList.remove('halloween-mode');
+                localStorage.setItem('Halloween', 'false');
+            } else {
+                document.body.classList.add('halloween-mode');
+                localStorage.setItem('Halloween', 'true');
+            }
+        }
+
+    // Apply saved mode on page load
+    window.addEventListener('load', () => {
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        } else if (localStorage.getItem('halloweenMode') === 'true') {
+            document.body.classList.add('halloween-mode');
+        }
+    });
+</script>
 </body>
 </html>
