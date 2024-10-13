@@ -449,9 +449,9 @@
 
     // Apply saved mode on page load
     window.addEventListener('load', () => {
-        if (localStorage.getItem('darkMode') === 'true') {
+        if (localStorage.getItem('Dark') === 'true') {
             document.body.classList.add('dark-mode');
-        } else if (localStorage.getItem('halloweenMode') === 'true') {
+        } else if (localStorage.getItem('Halloween') === 'true') {
             document.body.classList.add('halloween-mode');
         }
     });
