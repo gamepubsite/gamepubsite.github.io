@@ -69,6 +69,7 @@
         <div class="cell" data-index="8"></div>
     </div>
     <script>
+document.addEventListener('contextmenu', event => event.preventDefault());
         const board = document.querySelector('.board');
         const cells = document.querySelectorAll('.cell');
         let currentPlayer = 'X';
