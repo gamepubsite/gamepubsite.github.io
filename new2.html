@@ -114,7 +114,7 @@
         </div>
     </div>
     <script>
-
+document.addEventListener('contextmenu', event => event.preventDefault());
         if (localStorage.getItem('Halloween') === 'true') {
             document.body.classList.add('halloween-mode');
         }
