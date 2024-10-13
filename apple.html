@@ -70,6 +70,7 @@
         <p>Score: <span id="scoreDisplay">0</span> | Lives: <span id="livesDisplay">3</span> | Level: <span id="levelDisplay">1</span></p>
     </div>
     <script>
+document.addEventListener('contextmenu', event => event.preventDefault());
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
