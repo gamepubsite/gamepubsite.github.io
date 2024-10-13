@@ -171,6 +171,7 @@
         let invaders = [];
         let isLeftPressed = false;
         let isRightPressed = false;
+        let isSpacePressed = false;
         let canShoot = true;
 
         function createInvaders() {
@@ -190,9 +191,7 @@
             if (gameState.isGameOver()) return;
             if (e.key === 'ArrowLeft') isLeftPressed = true;
             if (e.key === 'ArrowRight') isRightPressed = true;
-            if (e.key === ' ' && canShoot) {
-                bullets.push(new Bullet(player.x + player.width / 2 - 2.5, player.y));
-            }
+            if (e.key === ' ') isSpacePressed = true;
             if (e.key.toLowerCase() === 'i') {
                 gameState.toggleInvincibility();
             }
@@ -201,6 +200,7 @@
         function handleKeyUp(e) {
             if (e.key === 'ArrowLeft') isLeftPressed = false;
             if (e.key === 'ArrowRight') isRightPressed = false;
+            if (e.key === ' ') isSpacePressed = false;
         }
 
         function updatePlayerPosition() {
@@ -239,6 +239,13 @@
 
             updatePlayerPosition();
             player.draw();
+
+            // Handle continuous shooting
+            if (isSpacePressed && canShoot) {
+                bullets.push(new Bullet(player.x + player.width / 2 - 2.5, player.y));
+                canShoot = false;
+                setTimeout(() => { canShoot = true; }, 1); // Adjust fire rate as needed
+            }
 
             bullets.forEach((bullet, bulletIndex) => {
                 bullet.update();
@@ -330,9 +337,11 @@
 
             shootBtn.addEventListener('touchstart', (e) => {
                 e.preventDefault();
-                if (!gameState.isGameOver()) {
-                    bullets.push(new Bullet(player.x + player.width / 2 - 2.5, player.y));
-                }
+                isSpacePressed = true;
+            });
+
+            shootBtn.addEventListener('touchend', () => {
+                isSpacePressed = false;
             });
         }
 
