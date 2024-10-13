@@ -114,6 +114,14 @@
         </div>
     </div>
     <script>
+
+        if (localStorage.getItem('Halloween') === 'true') {
+            document.body.classList.add('halloween-mode');
+        }
+
+        if (localStorage.getItem('Dark') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const scoreElement = document.getElementById('score');
@@ -445,15 +453,6 @@
                 document.body.classList.add('halloween-mode');
                 localStorage.setItem('Halloween', 'true');
             }
-        }
-
-    // Apply saved mode on page load
-    if (localStorage.getItem('Halloween') === 'true') {
-            document.body.classList.add('halloween-mode');
-        }
-
-    if (localStorage.getItem('Dark') === 'true') {
-            document.body.classList.add('dark-mode');
         }
 </script>
 </body>
