@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GamePub Rewrite</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
-<link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16">
-<link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+    <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16">
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -80,6 +80,32 @@
             background-color: black;
             color: white;
         }
+        /* Halloween mode styles */
+        .halloween-mode {
+            background-color: #1a1a1a;
+            color: #ff6600;
+            font-family: 'Creepster', cursive;
+        }
+        .halloween-mode .goback-button, .halloween-mode button {
+            background: #ff6600;
+            color: #1a1a1a;
+            border: 2px solid #ff6600;
+            font-family: 'Creepster', cursive;
+        }
+        .halloween-mode .card {
+            background-color: #4a4a4a;
+            color: #ff6600;
+            border: 2px solid #ff6600;
+            box-shadow: 0 0 10px #ff6600;
+        }
+        .halloween-mode .matched {
+            background-color: #8BC34A;
+        }
+        .halloween-mode .alert {
+            background-color: #1a1a1a;
+            color: #ff6600;
+            border: 2px solid #ff6600;
+        }
     </style>
 </head>
 <body>
@@ -87,6 +113,7 @@
     <button class="goback-button" onclick="back()">Go Back</button>
     <button onclick="Reset()">Reset</button>
     <button onclick="dark()">Dark Mode</button>
+    <button onclick="halloween()">Halloween Mode</button>
     <button onclick="Fix()">Fix Errors</button>
     <div class="grid" id="grid"></div>
     <div id="customAlert" class="alert">
@@ -122,13 +149,32 @@
             document.body.classList.add('dark-mode');
         }
 
+        // Check and apply Halloween mode state from localStorage
+        if (localStorage.getItem('Halloween') === 'true') {
+            document.body.classList.add('halloween-mode');
+        }
+
         function dark() {
+            document.body.classList.remove('halloween-mode');
+            localStorage.setItem('Halloween', 'false');
             if (document.body.classList.contains('dark-mode')) {
                 document.body.classList.remove('dark-mode');
                 localStorage.setItem('Dark', 'false');
             } else {
                 document.body.classList.add('dark-mode');
                 localStorage.setItem('Dark', 'true');
+            }
+        }
+
+        function halloween() {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('Dark', 'false');
+            if (document.body.classList.contains('halloween-mode')) {
+                document.body.classList.remove('halloween-mode');
+                localStorage.setItem('Halloween', 'false');
+            } else {
+                document.body.classList.add('halloween-mode');
+                localStorage.setItem('Halloween', 'true');
             }
         }
 
