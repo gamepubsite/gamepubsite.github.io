@@ -154,7 +154,7 @@
         <ul>
             <li onclick="window.location.href = 'setup.html'">Reload</li>
             <li class="reset-color" onclick="reset()">Reset Style</li>
-            <li href="/GamePubV2.zip" download>Download File</li>
+            <li onclick="download()">Download File</li>
         </ul>
     </div>
     <div id="content-area">
@@ -218,6 +218,25 @@ function reset() {
             document.body.classList.remove('halloween-mode');
         }
     //end area of dropdown
+    function download() {
+    // Create an anchor element
+    const link = document.createElement('a');
+    
+    // Set the href attribute to the file path
+    link.href = '/GamePubV2.zip';
+    
+    // Set the download attribute to force download
+    link.download = 'GamePubV2.zip';
+    
+    // Append the anchor to the body
+    document.body.appendChild(link);
+    
+    // Programmatically click the link to trigger the download
+    link.click();
+    
+    // Remove the link from the document
+    document.body.removeChild(link);
+}
     document.addEventListener('contextmenu', event => event.preventDefault());
         const gameArea = document.getElementById('gameArea');
         let currentGame = null;
