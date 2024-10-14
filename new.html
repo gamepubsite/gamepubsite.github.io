@@ -46,12 +46,76 @@
             border: 2px solid #ff6600;
             box-shadow: 0 0 10px #ff6600;
         }
+        #context-menu {
+    position: fixed;
+    z-index: 10000;
+    width: 150px;
+    background: #1b1a1a;
+    border-radius: 5px;
+    display: none;
+}
+
+#context-menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#context-menu ul li {
+    padding: 10px 15px;
+    cursor: pointer;
+    color: white;
+}
+
+#context-menu ul li:hover {
+    background: #343434;
+}
+
+#content-area {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.dark-mode #context-menu {
+            background: #333;
+        }
+
+        .dark-mode #context-menu ul li {
+            color: #fff;
+        }
+
+        .dark-mode #context-menu ul li:hover {
+            background: #555;
+        }
+
+        /* Halloween mode styles for context menu */
+        .halloween-mode #context-menu {
+            background: #1a1a1a;
+            border: 2px solid #ff6600;
+        }
+
+        .halloween-mode #context-menu ul li {
+            color: #ff6600;
+            font-family: 'Creepster', cursive;
+        }
+
+        .halloween-mode #context-menu ul li:hover {
+            background: #ff6600;
+            color: #1a1a1a;
     </style>
 </head>
 <body>
-    <h1> </h1>
-    <h2> </h2>
-    <h3>GamePub Rewrite - Halloween Edition</h3>
+    <div id="context-menu">
+        <ul>
+            <li onclick="window.location.href = 'new.html'">Reload</li>
+            <li class="reset-color" onclick="reset()">Reset Style</li>
+            <li onclick="window.location.href = 'setup.html'">Go Back</li>
+        </ul>
+    </div>
+    <div id="content-area">
+        <div>
+    <h1>GamePub Rewrite - Halloween Edition</h1>
     <button class="back-button" onclick="backHome();">Back to Home</button>
     <button class="reset-button" onclick="resetBoard();">Reset</button>
     <button onclick="window.location.href = 'new.html'">Fix Errors</button>
@@ -68,8 +132,45 @@
         <div class="cell" data-index="7"></div>
         <div class="cell" data-index="8"></div>
     </div>
+    </div>
+    </div>
     <script>
-document.addEventListener('contextmenu', event => event.preventDefault());
+    document.addEventListener('DOMContentLoaded', () => {
+    const contextMenu = document.getElementById('context-menu');
+    const contentArea = document.getElementById('content-area');
+
+    contentArea.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const { clientX: mouseX, clientY: mouseY } = e;
+        
+        contextMenu.style.top = `${mouseY}px`;
+        contextMenu.style.left = `${mouseX}px`;
+        
+        contextMenu.style.display = 'block';
+    });
+
+    document.addEventListener('click', (e) => {
+        if (e.target.offsetParent != contextMenu) {
+            contextMenu.style.display = 'none';
+        }
+    });
+
+    // Add functionality to menu items
+    const menuItems = contextMenu.querySelectorAll('li');
+    menuItems.forEach((item, index) => {
+        item.addEventListener('click', () => {
+            console.log(`Option ${index + 1} clicked`);
+            contextMenu.style.display = 'none';
+        });
+    });
+});
+function reset() {
+            localStorage.setItem('Halloween', 'false');
+            localStorage.setItem('Dark', 'false');
+            document.body.classList.remove('dark-mode');
+            document.body.classList.remove('halloween-mode');
+        }
+        document.addEventListener('contextmenu', event => event.preventDefault());
         const board = document.querySelector('.board');
         const cells = document.querySelectorAll('.cell');
         let currentPlayer = 'X';

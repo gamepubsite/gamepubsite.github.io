@@ -88,9 +88,77 @@
             padding: 20px;
             margin-top: 20px;
         }
+        /*start of context menu*/
+        #context-menu {
+    position: fixed;
+    z-index: 10000;
+    width: 150px;
+    background: #1b1a1a;
+    border-radius: 5px;
+    display: none;
+}
+
+#context-menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#context-menu ul li {
+    padding: 10px 15px;
+    cursor: pointer;
+    color: white;
+}
+
+#context-menu ul li:hover {
+    background: #343434;
+}
+
+#content-area {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.dark-mode #context-menu {
+            background: #333;
+        }
+
+        .dark-mode #context-menu ul li {
+            color: #fff;
+        }
+
+        .dark-mode #context-menu ul li:hover {
+            background: #555;
+        }
+
+        /* Halloween mode styles for context menu */
+        .halloween-mode #context-menu {
+            background: #1a1a1a;
+            border: 2px solid #ff6600;
+        }
+
+        .halloween-mode #context-menu ul li {
+            color: #ff6600;
+            font-family: 'Creepster', cursive;
+        }
+
+        .halloween-mode #context-menu ul li:hover {
+            background: #ff6600;
+            color: #1a1a1a;
+            /*end of context menu*/
     </style>
 </head>
 <body>
+    <div id="context-menu">
+        <ul>
+            <li onclick="window.location.href = 'setup.html'">Reload</li>
+            <li class="reset-color" onclick="reset()">Reset Style</li>
+            <li onclick="alert('nothing here yet!!!')">Coming soon...</li>
+        </ul>
+    </div>
+    <div id="content-area">
+        <div>
     <h1>GamePub V2 (Rewrite) - Halloween Edition</h1>
     <button onclick="dark()">Dark Mode</button>
     <button onclick="halloween()">Halloween Mode</button>
@@ -102,9 +170,7 @@
     <button onclick="toggleGame(5)">5. Memory Matching</button>
     <button onclick="toggleGame(6)">6. Invaders</button>
     <button onclick="window.location.href = 'apple.html'">7. Apple</button>
-    <button onclick="window.location.href = 'setup.html'">Fix Errors</button>
     <div id="gameArea"></div>
-
     <div id="customAlert" class="alert">
         <p>There's already a game active, are you sure you'd like to continue with this action?</p>
         <button onclick="clearGameArea()">Clear</button>
@@ -112,9 +178,47 @@
         <button id="launchAnyways">Launch Anyways</button>
     </div>
     <div id="overlay" class="overlay"></div>
-
+        </div>
+    </div>
     <script>
-document.addEventListener('contextmenu', event => event.preventDefault());
+    //beginning of the dropdown
+    document.addEventListener('DOMContentLoaded', () => {
+    const contextMenu = document.getElementById('context-menu');
+    const contentArea = document.getElementById('content-area');
+
+    contentArea.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const { clientX: mouseX, clientY: mouseY } = e;
+        
+        contextMenu.style.top = `${mouseY}px`;
+        contextMenu.style.left = `${mouseX}px`;
+        
+        contextMenu.style.display = 'block';
+    });
+
+    document.addEventListener('click', (e) => {
+        if (e.target.offsetParent != contextMenu) {
+            contextMenu.style.display = 'none';
+        }
+    });
+
+    // Add functionality to menu items
+    const menuItems = contextMenu.querySelectorAll('li');
+    menuItems.forEach((item, index) => {
+        item.addEventListener('click', () => {
+            console.log(`Option ${index + 1} clicked`);
+            contextMenu.style.display = 'none';
+        });
+    });
+});
+function reset() {
+            localStorage.setItem('Halloween', 'false');
+            localStorage.setItem('Dark', 'false');
+            document.body.classList.remove('dark-mode');
+            document.body.classList.remove('halloween-mode');
+        }
+    //end area of dropdown
+    document.addEventListener('contextmenu', event => event.preventDefault());
         const gameArea = document.getElementById('gameArea');
         let currentGame = null;
         let pendingGame = null;
