@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GamePub V2</title>
@@ -114,6 +115,41 @@
         .halloween-mode #context-menu ul li:hover {
             background: #ff6600;
             color: #1a1a1a;
+        }
+        mobileControls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+        .mobileButton {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            margin: 0 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid black;
+            border-radius: 50%;
+            touch-action: manipulation;
+            cursor: pointer;
+        }
+
+        /* Halloween mode styles for mobile controls */
+        .halloween-mode #mobileControls .mobileButton {
+            background: rgba(255, 102, 0, 0.7);
+            color: #1a1a1a;
+            border: 2px solid #ff6600;
+            font-family: 'Creepster', cursive;
+            box-shadow: 0 0 10px #ff6600;
+        }
+
+        /* Dark mode styles for mobile controls */
+        .dark-mode #mobileControls .mobileButton {
+            background: rgba(68, 68, 68, 0.7);
+            color: #fff;
+            border: 2px solid #fff;
+        }
     </style>
 </head>
 <body>
@@ -135,9 +171,46 @@
     <div id="gameInfo">
         <p>Score: <span id="scoreDisplay">0</span> | Lives: <span id="livesDisplay">3</span> | Level: <span id="levelDisplay">1</span></p>
     </div>
+    <div id="mobileControls">
+        <button id="leftButton" class="mobileButton">←</button>
+        <button id="rightButton" class="mobileButton">→</button>
+    </div>
     </div>
     </div>
     <script>
+    const mobileControls = document.getElementById('mobileControls');
+        const leftButton = document.getElementById('leftButton');
+        const rightButton = document.getElementById('rightButton');
+
+        console.log('Mobile controls:', mobileControls);
+        console.log('Left button:', leftButton);
+        console.log('Right button:', rightButton);
+
+        // Always show mobile controls for testing
+        mobileControls.style.display = 'block';
+
+        leftButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keys['ArrowLeft'] = true;
+            console.log('Left button pressed');
+        });
+
+        leftButton.addEventListener('touchend', () => {
+            keys['ArrowLeft'] = false;
+            console.log('Left button released');
+        });
+
+        rightButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keys['ArrowRight'] = true;
+            console.log('Right button pressed');
+        });
+
+        rightButton.addEventListener('touchend', () => {
+            keys['ArrowRight'] = false;
+            console.log('Right button released');
+        });
+    
     document.addEventListener('DOMContentLoaded', () => {
     const contextMenu = document.getElementById('context-menu');
     const contentArea = document.getElementById('content-area');
