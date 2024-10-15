@@ -59,64 +59,55 @@
             font-family: 'Creepster', cursive;
         }
         #context-menu {
-    position: fixed;
-    z-index: 10000;
-    width: 150px;
-    background: #1b1a1a;
-    border-radius: 5px;
-    display: none;
-}
-
-#context-menu ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-#context-menu ul li {
-    padding: 10px 15px;
-    cursor: pointer;
-    color: white;
-}
-
-#context-menu ul li:hover {
-    background: #343434;
-}
-
-#content-area {
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.dark-mode #context-menu {
+            position: fixed;
+            z-index: 10000;
+            width: 150px;
+            background: #1b1a1a;
+            border-radius: 5px;
+            display: none;
+        }
+        #context-menu ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        #context-menu ul li {
+            padding: 10px 15px;
+            cursor: pointer;
+            color: white;
+        }
+        #context-menu ul li:hover {
+            background: #343434;
+        }
+        #content-area {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .dark-mode #context-menu {
             background: #333;
         }
-
         .dark-mode #context-menu ul li {
             color: #fff;
         }
-
         .dark-mode #context-menu ul li:hover {
             background: #555;
         }
-
         /* Halloween mode styles for context menu */
         .halloween-mode #context-menu {
             background: #1a1a1a;
             border: 2px solid #ff6600;
         }
-
         .halloween-mode #context-menu ul li {
             color: #ff6600;
             font-family: 'Creepster', cursive;
         }
-
         .halloween-mode #context-menu ul li:hover {
             background: #ff6600;
             color: #1a1a1a;
         }
-        mobileControls {
+        #mobileControls {
             position: fixed;
             bottom: 20px;
             left: 50%;
@@ -134,7 +125,6 @@
             touch-action: manipulation;
             cursor: pointer;
         }
-
         /* Halloween mode styles for mobile controls */
         .halloween-mode #mobileControls .mobileButton {
             background: rgba(255, 102, 0, 0.7);
@@ -143,7 +133,6 @@
             font-family: 'Creepster', cursive;
             box-shadow: 0 0 10px #ff6600;
         }
-
         /* Dark mode styles for mobile controls */
         .dark-mode #mobileControls .mobileButton {
             background: rgba(68, 68, 68, 0.7);
@@ -264,9 +253,6 @@
     const fruits = [];
     const fruitTypes = ['apple', 'banana', 'orange', 'poison'];
 
-    let score = 0;
-    let lives = 3;
-    let level = 1;
     let fruitSpeed = 2;
     let fruitSpawnRate = 60;
     let frameCount = 0;
@@ -285,10 +271,67 @@
     });
 
     // Anti-cheat measures
-    let lastUpdateTime = Date.now();
-    let suspiciousActivityCount = 0;
     const MAX_SUSPICIOUS_ACTIVITY = 5;
     const MIN_UPDATE_INTERVAL = 16; // Minimum time between updates (in milliseconds)
+
+    // Game state object
+    const gameState = {
+        _score: 0,
+        _lives: 3,
+        _level: 1,
+        _lastUpdateTime: Date.now(),
+        _suspiciousActivityCount: 0,
+        
+        get score() {
+            return this._score;
+        },
+        set score(value) {
+            if (value > this._score + 3 || value < this._score) {
+                console.warn("Suspicious score change detected");
+                this._suspiciousActivityCount++;
+                this.checkSuspiciousActivity();
+            } else {
+                this._score = value;
+            }
+        },
+        
+        get lives() {
+            return this._lives;
+        },
+        set lives(value) {
+            if (value > this._lives || (this._lives > 0 && value < this._lives - 1)) {
+                console.warn("Suspicious lives change detected");
+                this._suspiciousActivityCount++;
+                this.checkSuspiciousActivity();
+            } else {
+                this._lives = value;
+            }
+        },
+        
+        get level() {
+            return this._level;
+        },
+        set level(value) {
+            if (value > this._level + 1 || value < this._level) {
+                console.warn("Suspicious level change detected");
+                this._suspiciousActivityCount++;
+                this.checkSuspiciousActivity();
+            } else {
+                this._level = value;
+            }
+        },
+        
+        checkSuspiciousActivity() {
+            if (this._suspiciousActivityCount >= MAX_SUSPICIOUS_ACTIVITY) {
+                gameOver = true;
+                alert("Cheating detected. Game over.");
+            }
+        },
+        
+        resetSuspiciousActivity() {
+            this._suspiciousActivityCount = Math.max(0, this._suspiciousActivityCount - 1);
+        }
+    };
 
     // Game loop
     function gameLoop() {
@@ -301,23 +344,18 @@
 
     function update() {
         const currentTime = Date.now();
-        const timeDiff = currentTime - lastUpdateTime;
+        const timeDiff = currentTime - gameState._lastUpdateTime;
 
         // Check for time manipulation
         if (timeDiff < MIN_UPDATE_INTERVAL) {
-            suspiciousActivityCount++;
+            gameState._suspiciousActivityCount++;
             console.warn("Suspicious activity detected: Possible speed hack");
-            if (suspiciousActivityCount >= MAX_SUSPICIOUS_ACTIVITY) {
-                gameOver = true;
-                alert("Cheating detected. Game over.");
-                window.location.href = 'setup.html'
-                return;
-            }
+            gameState.checkSuspiciousActivity();
         } else {
-            suspiciousActivityCount = Math.max(0, suspiciousActivityCount - 1);
+            gameState.resetSuspiciousActivity();
         }
 
-        lastUpdateTime = currentTime;
+        gameState._lastUpdateTime = currentTime;
 
         // Move player
         if (keys['ArrowLeft'] && player.x > 0) {
@@ -340,15 +378,15 @@
         moveFruitsAndCheckCollisions();
 
         // Check for level up
-        if (score >= level * 10) {
+        if (gameState.score >= gameState.level * 10) {
             levelUp();
         }
 
         // Check for game over
-        if (lives <= 0) {
+        if (gameState.lives <= 0) {
             gameOver = true;
             setTimeout(() => {
-                alert('Game Over! Your score: ' + score);
+                alert('Game Over! Your score: ' + gameState.score);
                 resetGame();
             }, 100);
         }
@@ -367,10 +405,10 @@
                 player.y + player.height > fruit.y
             ) {
                 if (fruit.type === 'poison') {
-                    lives--;
+                    gameState.lives--;
                     updateLives();
                 } else {
-                    score += fruit.points;
+                    gameState.score += fruit.points;
                     updateScore();
                 }
                 fruits.splice(i, 1);
@@ -380,7 +418,7 @@
             // Check if fruit has gone off screen
             if (fruit.y > canvas.height) {
                 if (fruit.type !== 'poison') {
-                    lives--;
+                    gameState.lives--;
                     updateLives();
                 }
                 fruits.splice(i, 1);
@@ -444,16 +482,16 @@
     }
 
     function levelUp() {
-        level++;
+        gameState.level++;
         fruitSpeed += 0.5;
         fruitSpawnRate = Math.max(fruitSpawnRate - 5, 20);
         updateLevel();
     }
 
     function resetGame() {
-        score = 0;
-        lives = 3;
-        level = 1;
+        gameState._score = 0;
+        gameState._lives = 3;
+        gameState._level = 1;
         fruitSpeed = 2;
         fruitSpawnRate = 60;
         fruits.length = 0;
@@ -465,15 +503,15 @@
     }
 
     function updateScore() {
-        document.getElementById('scoreDisplay').textContent = score;
+        document.getElementById('scoreDisplay').textContent = gameState.score;
     }
 
     function updateLives() {
-        document.getElementById('livesDisplay').textContent = lives;
+        document.getElementById('livesDisplay').textContent = gameState.lives;
     }
 
     function updateLevel() {
-        document.getElementById('levelDisplay').textContent = level;
+        document.getElementById('levelDisplay').textContent = gameState.level;
     }
 
     function toggleDarkMode() {
@@ -499,30 +537,6 @@
             localStorage.setItem('Halloween', 'true');
         }
     }
-
-    // Prevent score manipulation
-    Object.defineProperty(window, 'score', {
-        get: function() {
-            return score;
-        },
-        set: function(value) {
-            console.warn("Attempt to modify score detected");
-            gameOver = true;
-            alert("Cheating detected. Game over.");
-        }
-    });
-
-    // Prevent lives manipulation
-    Object.defineProperty(window, 'lives', {
-        get: function() {
-            return lives;
-        },
-        set: function(value) {
-            console.warn("Attempt to modify lives detected");
-            gameOver = true;
-            alert("Cheating detected. Game over.");
-        }
-    });
 
     // Check and apply saved mode
     if (localStorage.getItem('Dark') === 'true') {
