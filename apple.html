@@ -162,324 +162,377 @@
     </div>
     <div id="content-area">
         <div>
-    <div id="back">
-        <button class="back" onclick="window.location.href = 'setup.html'">Go Back</button>
-        <button class="mode-button" onclick="toggleDarkMode()">Dark Mode</button>
-        <button class="mode-button" onclick="toggleHalloweenMode()">Halloween Mode</button>
-    </div>
-    <canvas id="gameCanvas" width="480" height="360"></canvas>
-    <div id="gameInfo">
-        <p>Score: <span id="scoreDisplay">0</span> | Lives: <span id="livesDisplay">3</span> | Level: <span id="levelDisplay">1</span></p>
-    </div>
-    <div id="mobileControls">
-        <button id="leftButton" class="mobileButton">←</button>
-        <button id="rightButton" class="mobileButton">→</button>
-    </div>
-    </div>
+            <div id="back">
+                <button class="back" onclick="window.location.href = 'setup.html'">Go Back</button>
+                <button class="mode-button" onclick="toggleDarkMode()">Dark Mode</button>
+                <button class="mode-button" onclick="toggleHalloweenMode()">Halloween Mode</button>
+            </div>
+            <canvas id="gameCanvas" width="480" height="360"></canvas>
+            <div id="gameInfo">
+                <p>Score: <span id="scoreDisplay">0</span> | Lives: <span id="livesDisplay">3</span> | Level: <span id="levelDisplay">1</span></p>
+            </div>
+            <div id="mobileControls">
+                <button id="leftButton" class="mobileButton">←</button>
+                <button id="rightButton" class="mobileButton">→</button>
+            </div>
+        </div>
     </div>
     <script>
     const mobileControls = document.getElementById('mobileControls');
-        const leftButton = document.getElementById('leftButton');
-        const rightButton = document.getElementById('rightButton');
+    const leftButton = document.getElementById('leftButton');
+    const rightButton = document.getElementById('rightButton');
 
-        console.log('Mobile controls:', mobileControls);
-        console.log('Left button:', leftButton);
-        console.log('Right button:', rightButton);
+    console.log('Mobile controls:', mobileControls);
+    console.log('Left button:', leftButton);
+    console.log('Right button:', rightButton);
 
-        // Always show mobile controls for testing
-        mobileControls.style.display = 'block';
+    // Always show mobile controls for testing
+    mobileControls.style.display = 'block';
 
-        leftButton.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            keys['ArrowLeft'] = true;
-            console.log('Left button pressed');
-        });
-
-        leftButton.addEventListener('touchend', () => {
-            keys['ArrowLeft'] = false;
-            console.log('Left button released');
-        });
-
-        rightButton.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            keys['ArrowRight'] = true;
-            console.log('Right button pressed');
-        });
-
-        rightButton.addEventListener('touchend', () => {
-            keys['ArrowRight'] = false;
-            console.log('Right button released');
-        });
-    
-    document.addEventListener('DOMContentLoaded', () => {
-    const contextMenu = document.getElementById('context-menu');
-    const contentArea = document.getElementById('content-area');
-
-    contentArea.addEventListener('contextmenu', (e) => {
+    leftButton.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        const { clientX: mouseX, clientY: mouseY } = e;
-        
-        contextMenu.style.top = `${mouseY}px`;
-        contextMenu.style.left = `${mouseX}px`;
-        
-        contextMenu.style.display = 'block';
+        keys['ArrowLeft'] = true;
+        console.log('Left button pressed');
     });
 
-    document.addEventListener('click', (e) => {
-        if (e.target.offsetParent != contextMenu) {
-            contextMenu.style.display = 'none';
-        }
+    leftButton.addEventListener('touchend', () => {
+        keys['ArrowLeft'] = false;
+        console.log('Left button released');
     });
 
-    // Add functionality to menu items
-    const menuItems = contextMenu.querySelectorAll('li');
-    menuItems.forEach((item, index) => {
-        item.addEventListener('click', () => {
-            console.log(`Option ${index + 1} clicked`);
-            contextMenu.style.display = 'none';
-        });
+    rightButton.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        keys['ArrowRight'] = true;
+        console.log('Right button pressed');
     });
-});
-function reset() {
-            localStorage.setItem('Halloween', 'false');
-            localStorage.setItem('Dark', 'false');
-            document.body.classList.remove('dark-mode');
-            document.body.classList.remove('halloween-mode');
-        }
-    document.addEventListener('contextmenu', event => event.preventDefault());
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
 
-        // Game objects
-        const player = {
-            x: canvas.width / 2,
-            y: canvas.height - 30,
-            width: 50,
-            height: 50,
-            speed: 5
-        };
+    rightButton.addEventListener('touchend', () => {
+        keys['ArrowRight'] = false;
+        console.log('Right button released');
+    });
 
-        const fruits = [];
-        const fruitTypes = ['apple', 'banana', 'orange', 'poison'];
+    document.addEventListener('DOMContentLoaded', () => {
+        const contextMenu = document.getElementById('context-menu');
+        const contentArea = document.getElementById('content-area');
 
-        let score = 0;
-        let lives = 3;
-        let level = 1;
-        let fruitSpeed = 2;
-        let fruitSpawnRate = 60;
-        let frameCount = 0;
-        let gameOver = false;
-
-        // Key states
-        const keys = {};
-
-        // Event listeners
-        document.addEventListener('keydown', (e) => {
-            keys[e.code] = true;
+        contentArea.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const { clientX: mouseX, clientY: mouseY } = e;
+            
+            contextMenu.style.top = `${mouseY}px`;
+            contextMenu.style.left = `${mouseX}px`;
+            
+            contextMenu.style.display = 'block';
         });
 
-        document.addEventListener('keyup', (e) => {
-            keys[e.code] = false;
+        document.addEventListener('click', (e) => {
+            if (e.target.offsetParent != contextMenu) {
+                contextMenu.style.display = 'none';
+            }
         });
 
-        // Game loop
-        function gameLoop() {
-            if (!gameOver) {
-                update();
-                draw();
-                requestAnimationFrame(gameLoop);
-            }
-        }
-
-        function update() {
-            // Move player
-            if (keys['ArrowLeft'] && player.x > 0) {
-                player.x -= player.speed;
-            }
-            if (keys['ArrowRight'] && player.x < canvas.width - player.width) {
-                player.x += player.speed;
-            }
-
-            // Spawn new fruits
-            frameCount++;
-            if (frameCount % fruitSpawnRate === 0) {
-                spawnFruit();
-            }
-
-            // Move fruits and check collisions
-            moveFruitsAndCheckCollisions();
-
-            // Check for level up
-            if (score >= level * 10) {
-                levelUp();
-            }
-
-            // Check for game over
-            if (lives <= 0) {
-                gameOver = true;
-                setTimeout(() => {
-                    alert('Game Over! Your score: ' + score);
-                    resetGame();
-                }, 100);
-            }
-        }
-
-        function moveFruitsAndCheckCollisions() {
-            for (let i = fruits.length - 1; i >= 0; i--) {
-                const fruit = fruits[i];
-                fruit.y += fruitSpeed;
-
-                // Check collision with player
-                if (
-                    player.x < fruit.x + fruit.width &&
-                    player.x + player.width > fruit.x &&
-                    player.y < fruit.y + fruit.height &&
-                    player.y + player.height > fruit.y
-                ) {
-                    if (fruit.type === 'poison') {
-                        lives--;
-                        updateLives();
-                    } else {
-                        score += fruit.points;
-                        updateScore();
-                    }
-                    fruits.splice(i, 1);
-                    continue;
-                }
-
-                // Check if fruit has gone off screen
-                if (fruit.y > canvas.height) {
-                    if (fruit.type !== 'poison') {
-                        lives--;
-                        updateLives();
-                    }
-                    fruits.splice(i, 1);
-                }
-            }
-        }
-
-        function draw() {
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw player
-            ctx.fillStyle = document.body.classList.contains('halloween-mode') ? '#ff6600' : 'blue';
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-
-            // Draw fruits
-            fruits.forEach(fruit => {
-                ctx.fillStyle = getFruitColor(fruit.type);
-                ctx.fillRect(fruit.x, fruit.y, fruit.width, fruit.height);
+        // Add functionality to menu items
+        const menuItems = contextMenu.querySelectorAll('li');
+        menuItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                console.log(`Option ${index + 1} clicked`);
+                contextMenu.style.display = 'none';
             });
+        });
+    });
+
+    function reset() {
+        localStorage.setItem('Halloween', 'false');
+        localStorage.setItem('Dark', 'false');
+        document.body.classList.remove('dark-mode');
+        document.body.classList.remove('halloween-mode');
+    }
+
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Game objects
+    const player = {
+        x: canvas.width / 2,
+        y: canvas.height - 30,
+        width: 50,
+        height: 50,
+        speed: 5
+    };
+
+    const fruits = [];
+    const fruitTypes = ['apple', 'banana', 'orange', 'poison'];
+
+    let score = 0;
+    let lives = 3;
+    let level = 1;
+    let fruitSpeed = 2;
+    let fruitSpawnRate = 60;
+    let frameCount = 0;
+    let gameOver = false;
+
+    // Key states
+    const keys = {};
+
+    // Event listeners
+    document.addEventListener('keydown', (e) => {
+        keys[e.code] = true;
+    });
+
+    document.addEventListener('keyup', (e) => {
+        keys[e.code] = false;
+    });
+
+    // Anti-cheat measures
+    let lastUpdateTime = Date.now();
+    let suspiciousActivityCount = 0;
+    const MAX_SUSPICIOUS_ACTIVITY = 5;
+    const MIN_UPDATE_INTERVAL = 16; // Minimum time between updates (in milliseconds)
+
+    // Game loop
+    function gameLoop() {
+        if (!gameOver) {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+    }
+
+    function update() {
+        const currentTime = Date.now();
+        const timeDiff = currentTime - lastUpdateTime;
+
+        // Check for time manipulation
+        if (timeDiff < MIN_UPDATE_INTERVAL) {
+            suspiciousActivityCount++;
+            console.warn("Suspicious activity detected: Possible speed hack");
+            if (suspiciousActivityCount >= MAX_SUSPICIOUS_ACTIVITY) {
+                gameOver = true;
+                alert("Cheating detected. Game over.");
+                return;
+            }
+        } else {
+            suspiciousActivityCount = Math.max(0, suspiciousActivityCount - 1);
         }
 
-        function spawnFruit() {
-            const type = fruitTypes[Math.floor(Math.random() * fruitTypes.length)];
-            const fruit = {
-                x: Math.random() * (canvas.width - 20),
-                y: 0,
-                width: 20,
-                height: 20,
-                type: type,
-                points: getFruitPoints(type)
-            };
-            fruits.push(fruit);
+        lastUpdateTime = currentTime;
+
+        // Move player
+        if (keys['ArrowLeft'] && player.x > 0) {
+            player.x -= player.speed;
+        }
+        if (keys['ArrowRight'] && player.x < canvas.width - player.width) {
+            player.x += player.speed;
         }
 
-        function getFruitColor(type) {
-            if (document.body.classList.contains('halloween-mode')) {
-                switch (type) {
-                    case 'apple': return '#ff4500';
-                    case 'banana': return '#ffd700';
-                    case 'orange': return '#ffa500';
-                    case 'poison': return '#8b008b';
+        // Prevent teleportation
+        player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+
+        // Spawn new fruits
+        frameCount++;
+        if (frameCount % fruitSpawnRate === 0) {
+            spawnFruit();
+        }
+
+        // Move fruits and check collisions
+        moveFruitsAndCheckCollisions();
+
+        // Check for level up
+        if (score >= level * 10) {
+            levelUp();
+        }
+
+        // Check for game over
+        if (lives <= 0) {
+            gameOver = true;
+            setTimeout(() => {
+                alert('Game Over! Your score: ' + score);
+                resetGame();
+            }, 100);
+        }
+    }
+
+    function moveFruitsAndCheckCollisions() {
+        for (let i = fruits.length - 1; i >= 0; i--) {
+            const fruit = fruits[i];
+            fruit.y += fruitSpeed;
+
+            // Check collision with player
+            if (
+                player.x < fruit.x + fruit.width &&
+                player.x + player.width > fruit.x &&
+                player.y < fruit.y + fruit.height &&
+                player.y + player.height > fruit.y
+            ) {
+                if (fruit.type === 'poison') {
+                    lives--;
+                    updateLives();
+                } else {
+                    score += fruit.points;
+                    updateScore();
                 }
-            } else {
-                switch (type) {
-                    case 'apple': return 'red';
-                    case 'banana': return 'yellow';
-                    case 'orange': return 'orange';
-                    case 'poison': return 'purple';
+                fruits.splice(i, 1);
+                continue;
+            }
+
+            // Check if fruit has gone off screen
+            if (fruit.y > canvas.height) {
+                if (fruit.type !== 'poison') {
+                    lives--;
+                    updateLives();
                 }
+                fruits.splice(i, 1);
             }
         }
+    }
 
-        function getFruitPoints(type) {
+    function draw() {
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw player
+        ctx.fillStyle = document.body.classList.contains('halloween-mode') ? '#ff6600' : 'blue';
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+
+        // Draw fruits
+        fruits.forEach(fruit => {
+            ctx.fillStyle = getFruitColor(fruit.type);
+            ctx.fillRect(fruit.x, fruit.y, fruit.width, fruit.height);
+        });
+    }
+
+    function spawnFruit() {
+        const type = fruitTypes[Math.floor(Math.random() * fruitTypes.length)];
+        const fruit = {
+            x: Math.random() * (canvas.width - 20),
+            y: 0,
+            width: 20,
+            height: 20,
+            type: type,
+            points: getFruitPoints(type)
+        };
+        fruits.push(fruit);
+    }
+
+    function getFruitColor(type) {
+        if (document.body.classList.contains('halloween-mode')) {
             switch (type) {
-                case 'apple': return 1;
-                case 'banana': return 2;
-                case 'orange': return 3;
-                case 'poison': return 0;
+                case 'apple': return '#ff4500';
+                case 'banana': return '#ffd700';
+                case 'orange': return '#ffa500';
+                case 'poison': return '#8b008b';
+            }
+        } else {
+            switch (type) {
+                case 'apple': return 'red';
+                case 'banana': return 'yellow';
+                case 'orange': return 'orange';
+                case 'poison': return 'purple';
             }
         }
+    }
 
-        function levelUp() {
-            level++;
-            fruitSpeed += 0.5;
-            fruitSpawnRate = Math.max(fruitSpawnRate - 5, 20);
-            updateLevel();
+    function getFruitPoints(type) {
+        switch (type) {
+            case 'apple': return 1;
+            case 'banana': return 2;
+            case 'orange': return 3;
+            case 'poison': return 0;
         }
+    }
 
-        function resetGame() {
-            score = 0;
-            lives = 3;
-            level = 1;
-            fruitSpeed = 2;
-            fruitSpawnRate = 60;
-            fruits.length = 0;
-            gameOver = false;
-            updateScore();
-            updateLives();
-            updateLevel();
-            gameLoop();
-        }
+    function levelUp() {
+        level++;
+        fruitSpeed += 0.5;
+        fruitSpawnRate = Math.max(fruitSpawnRate - 5, 20);
+        updateLevel();
+    }
 
-        function updateScore() {
-            document.getElementById('scoreDisplay').textContent = score;
-        }
+    function resetGame() {
+        score = 0;
+        lives = 3;
+        level = 1;
+        fruitSpeed = 2;
+        fruitSpawnRate = 60;
+        fruits.length = 0;
+        gameOver = false;
+        updateScore();
+        updateLives();
+        updateLevel();
+        gameLoop();
+    }
 
-        function updateLives() {
-            document.getElementById('livesDisplay').textContent = lives;
-        }
+    function updateScore() {
+        document.getElementById('scoreDisplay').textContent = score;
+    }
 
-        function updateLevel() {
-            document.getElementById('levelDisplay').textContent = level;
-        }
+    function updateLives() {
+        document.getElementById('livesDisplay').textContent = lives;
+    }
 
-        function toggleDarkMode() {
-            document.body.classList.remove('halloween-mode');
-            localStorage.setItem('Halloween', 'false');
-            if (document.body.classList.contains('dark-mode')) {
-                document.body.classList.remove('dark-mode');
-                localStorage.setItem('Dark', 'false');
-            } else {
-                document.body.classList.add('dark-mode');
-                localStorage.setItem('Dark', 'true');
-            }
-        }
+    function updateLevel() {
+        document.getElementById('levelDisplay').textContent = level;
+    }
 
-        function toggleHalloweenMode() {
+    function toggleDarkMode() {
+        document.body.classList.remove('halloween-mode');
+        localStorage.setItem('Halloween', 'false');
+        if (document.body.classList.contains('dark-mode')) {
             document.body.classList.remove('dark-mode');
             localStorage.setItem('Dark', 'false');
-            if (document.body.classList.contains('halloween-mode')) {
-                document.body.classList.remove('halloween-mode');
-                localStorage.setItem('Halloween', 'false');
-            } else {
-                document.body.classList.add('halloween-mode');
-                localStorage.setItem('Halloween', 'true');
-            }
-        }
-
-        // Check and apply saved mode
-        if (localStorage.getItem('Dark') === 'true') {
+        } else {
             document.body.classList.add('dark-mode');
+            localStorage.setItem('Dark', 'true');
         }
-        if (localStorage.getItem('Halloween') === 'true') {
-            document.body.classList.add('halloween-mode');
-        }
+    }
 
-        // Start the game
-        gameLoop();
+    function toggleHalloweenMode() {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('Dark', 'false');
+        if (document.body.classList.contains('halloween-mode')) {
+            document.body.classList.remove('halloween-mode');
+            localStorage.setItem('Halloween', 'false');
+        } else {
+            document.body.classList.add('halloween-mode');
+            localStorage.setItem('Halloween', 'true');
+        }
+    }
+
+    // Prevent score manipulation
+    Object.defineProperty(window, 'score', {
+        get: function() {
+            return score;
+        },
+        set: function(value) {
+            console.warn("Attempt to modify score detected");
+            gameOver = true;
+            alert("Cheating detected. Game over.");
+        }
+    });
+
+    // Prevent lives manipulation
+    Object.defineProperty(window, 'lives', {
+        get: function() {
+            return lives;
+        },
+        set: function(value) {
+            console.warn("Attempt to modify lives detected");
+            gameOver = true;
+            alert("Cheating detected. Game over.");
+        }
+    });
+
+    // Check and apply saved mode
+    if (localStorage.getItem('Dark') === 'true') {
+        document.body.classList.add('dark-mode');
+    }
+    if (localStorage.getItem('Halloween') === 'true') {
+        document.body.classList.add('halloween-mode');
+    }
+
+    // Start the game
+    gameLoop();
     </script>
 </body>
 </html>
