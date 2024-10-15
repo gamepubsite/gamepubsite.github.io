@@ -310,6 +310,7 @@
             if (suspiciousActivityCount >= MAX_SUSPICIOUS_ACTIVITY) {
                 gameOver = true;
                 alert("Cheating detected. Game over.");
+                window.location.href = 'setup.html'
                 return;
             }
         } else {
