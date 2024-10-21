@@ -163,7 +163,7 @@
     <h1>GamePub V2 (Rewrite) - Halloween Edition</h1>
     <button onclick="dark()">Dark Mode</button>
     <button onclick="halloween()">Halloween Mode</button>
-    <h2>V2.13: After a while with no updates, I have decided to add a new game (wordle) and make a device detection system.</h2>
+    <h2>V2.13.1: Fixed wordle up a little bit and refreshed some other glitches that were caused by this update.</h2>
     <button onclick="toggleGame(1)">1. Number Game</button>
     <button onclick="toggleGame(2)">2. Rock Paper Scissors</button>
     <button onclick="toggleGame(3)">3. Quiz Game</button>
@@ -184,15 +184,30 @@
         </div>
     </div>
     <script>
-    if (localStorage.getItem('device') === 'true') {
-        localStorage.setItem('checked', 'true');
-        alert('Device Verified.');
-    } else {
-        if (localStorage.getItem('checked') !== 'true') {
-        window.location.href = 'index.html'
-        }
+    function detectDevice() {
+  const userAgent = navigator.userAgent.toLowerCase();
+  const isMobile = /iphone|ipad|ipod|android|blackberry|windows phone/g.test(userAgent);
+  const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/g.test(userAgent);
+
+  if (isMobile && !isTablet) {
+      if (!localStorage.getItem('dev')) {
+    alert('Mobile Bypass Detected')
+    localStorage.setItem('banned', 'true')
+    window.location.href = 'ban.html';
+  }
+  } else if (isTablet) {
+    if (!localStorage.getItem('dev')) {
+    alert('Mobile Bypass Detected.')
+    localStorage.setItem('banned', 'true')
+    window.location.href = 'ban.html';
     }
-    localStorage.removeItem('device');
+  } else {
+      if (localStorage.getItem('banned') !== 'true') {
+
+  }
+  }
+}
+detectDevice();
      if (localStorage.getItem('banned') === 'true') {
         window.location.href = 'index.html'
     }

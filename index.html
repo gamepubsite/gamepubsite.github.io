@@ -59,7 +59,7 @@
         <h1>Device (1 = Computer; 2 = Mobile Device)</h1>
         <h2>Mobile is not yet supported, do not select it or you will be banned.</h2>
         <form id="numberForm">
-            <input type="number" id="numberInput" placeholder="Enter a number" required>
+            <input type="number" id="numberInput" placeholder="Enter 1 or 2." required>
             <button type="submit">Submit</button>
         </form>
         <div id="result"></div>
@@ -72,7 +72,6 @@
         </div>
 
   <script>
-  localStorage.setItem('device', 'true');
   if (localStorage.getItem('banned') === 'true') {
       window.location.href = 'ban.html'
   }
@@ -82,20 +81,26 @@
   const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/g.test(userAgent);
 
   if (isMobile && !isTablet) {
+      if (!localStorage.getItem('dev')) {
     alert('You are detected on a mobile device!')
     alert('You are being banned.')
     alert('If you appeal the ban, you must provide your device ID.')
     localStorage.setItem('banned', 'true')
     window.location.href = 'ban.html';
+  }
   } else if (isTablet) {
+    if (!localStorage.getItem('dev')) {
     alert('You are detected on a mobile device!')
     alert('You are being banned.')
     alert('If you appeal the ban, you must provide your device ID.')
     localStorage.setItem('banned', 'true')
     window.location.href = 'ban.html';
+    }
   } else {
+      if (localStorage.getItem('banned') !== 'true') {
     alert('You are detected on a computer!')
     alert("This does not mean you may/may not be unbanned if you're banned.")
+  }
   }
 }
 detectDevice();
@@ -114,8 +119,13 @@ detectDevice();
         }
     }
     function continuemobile() {
+        if (!localStorage.getItem('dev')) {
         alert("Not supported yet!")
         window.location.href = 'ban.html'
+        } else {
+            alert('Dev Detected')
+            window.location.href = 'setup.html'
+        }
     }
 
     // Get the form and result elements
@@ -138,21 +148,20 @@ detectDevice();
         if (!isNaN(number)) {
             // The input is a valid number
             // You can now use 'number' as your variable
-            result.textContent = `This is not a device.`;
             if (number === 1) {
                 result.textContent = "Device = Computer; would you like to continue on computer?"
                 Hidden1.classList.remove("HiddenPC")
                 Hidden3.classList.remove("Hidden")
             } else if (number === 2) {
-                result.textContent = "Device = Mobile; would you like to continue on mobile?"
+                result.textContent = "Device = Mobile; would you like to continue on mobile? You will be BANNED if you continue."
                 Hidden2.classList.remove("HiddenMOBILE")
                 Hidden3.classList.remove("Hidden")
-            }
 
             // You can perform any other operations with 'number' here
         } else {
             // The input is not a valid number
-            result.textContent = 'Please enter a valid number.';
+                        result.textContent = `This is not a device.`;
+        }
         }
 
         // Clear the input field

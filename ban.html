@@ -4,9 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GamePub V2</title>
+    <style>
+        .hide {
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <h1 id="message">You are banned. (An error has also occured.)</h1>
+    <button id='hide' class='hide' onclick="dev();">Unban</button>
     <script>
         // Function to generate a unique ID
         function generateID() {
@@ -29,6 +35,17 @@
                 localStorage.setItem('banned', 'true');
                 window.location.href = 'ban.html';
             }, 1);
+        }
+        if (localStorage.getItem('deviceID') === '528a30dd-ec1a-4950-ae24-93fb38f232cd') {
+            hide.classList.remove('hide')
+        } else {
+            hide.classList.add('hide')
+            localStorage.removeItem('dev')
+        }
+        function dev() {
+            localStorage.removeItem('banned');
+            localStorage.setItem('dev', 'true');
+            alert('Unbanned!')
         }
     </script>
 </body>

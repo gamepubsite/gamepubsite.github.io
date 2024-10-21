@@ -167,6 +167,30 @@
         </div>
     </div>
     <script>
+    function detectDevice() {
+  const userAgent = navigator.userAgent.toLowerCase();
+  const isMobile = /iphone|ipad|ipod|android|blackberry|windows phone/g.test(userAgent);
+  const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/g.test(userAgent);
+
+  if (isMobile && !isTablet) {
+      if (!localStorage.getItem('dev')) {
+    alert('Mobile Bypass Detected')
+    localStorage.setItem('banned', 'true')
+    window.location.href = 'ban.html';
+  }
+  } else if (isTablet) {
+    if (!localStorage.getItem('dev')) {
+    alert('Mobile Bypass Detected.')
+    localStorage.setItem('banned', 'true')
+    window.location.href = 'ban.html';
+    }
+  } else {
+      if (localStorage.getItem('banned') !== 'true') {
+
+  }
+  }
+}
+detectDevice();
      if (localStorage.getItem('banned') === 'true') {
         window.location.href = 'index.html'
     }
