@@ -119,13 +119,8 @@ detectDevice();
         }
     }
     function continuemobile() {
-        if (!localStorage.getItem('dev')) {
         alert("Not supported yet!")
         window.location.href = 'ban.html'
-        } else {
-            alert('Dev Detected')
-            window.location.href = 'setup.html'
-        }
     }
 
     // Get the form and result elements
@@ -152,11 +147,12 @@ detectDevice();
                 result.textContent = "Device = Computer; would you like to continue on computer?"
                 Hidden1.classList.remove("HiddenPC")
                 Hidden3.classList.remove("Hidden")
+                Hidden2.classList.add("HiddenMOBILE")
             } else if (number === 2) {
                 result.textContent = "Device = Mobile; would you like to continue on mobile? You will be BANNED if you continue."
                 Hidden2.classList.remove("HiddenMOBILE")
                 Hidden3.classList.remove("Hidden")
-
+                Hidden1.classList.add("HiddenPC")
             // You can perform any other operations with 'number' here
         } else {
             // The input is not a valid number
