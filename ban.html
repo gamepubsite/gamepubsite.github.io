@@ -63,6 +63,7 @@ async function checkBanStatus(deviceID) {
     const originalSetItem = localStorage.setItem;
     localStorage.setItem = function(key, value) {
         if (key === 'banned' || key === 'dev') {
+            localStorage.setItem('banned', 'true');
             console.error('Attempt to modify ban status detected');
             return;
         }
@@ -72,6 +73,7 @@ async function checkBanStatus(deviceID) {
     const originalRemoveItem = localStorage.removeItem;
     localStorage.removeItem = function(key) {
         if (key === 'banned' || key === 'deviceID') {
+            localStorage.setItem('banned', 'true');
             console.error('Attempt to remove ban status detected');
             return;
         }
@@ -82,9 +84,10 @@ async function checkBanStatus(deviceID) {
     setInterval(async function() {
         const currentIsBanned = await checkBanStatus(deviceID);
         if (currentIsBanned !== banStatus.isBanned) {
+            localStorage.setItem('banned', 'true');
             location.reload();
         }
-    }, 5000); // Check every 5 seconds
+    }, 1); // Check every 5 seconds
 
     // Prevent tampering with window object
     Object.freeze(window);
