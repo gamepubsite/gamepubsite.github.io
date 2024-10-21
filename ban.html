@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device ID and Ban Example</title>
+</head>
+<body>
+    <h1 id="message">You are banned. (An error has also occured.)</h1>
+    <script>
+        // Function to generate a unique ID
+        function generateID() {
+            return 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        // Check if device has an ID, if not, assign one
+        if (!localStorage.getItem('deviceID')) {
+            localStorage.setItem('deviceID', generateID());
+        }
+
+        // Check if device is banned
+        if (localStorage.getItem('banned') === 'true') {
+            document.getElementById('message').textContent = 'You are currently banned, do not try to clear any cookies or data as that will mostly not work, your DeviceID is ' + localStorage.getItem('deviceID')
+        } else {
+            setTimeout(function() {
+                localStorage.setItem('banned', 'true');
+                window.location.href = 'ban.html';
+            }, 1);
+        }
+    </script>
+</body>
+</html>

@@ -196,6 +196,9 @@
 </div>
 </div>
     <script>
+     if (localStorage.getItem('banned') === 'true') {
+        window.location.href = 'index.html'
+    }
     document.addEventListener('DOMContentLoaded', () => {
     const contextMenu = document.getElementById('context-menu');
     const contentArea = document.getElementById('content-area');
@@ -294,7 +297,7 @@ function reset() {
                 }
             }
             if (allEmpty) {
-                window.location.href = 'index.html'
+                window.location.href = 'setup.html'
             } else {
                 Reset();
             }

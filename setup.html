@@ -163,7 +163,7 @@
     <h1>GamePub V2 (Rewrite) - Halloween Edition</h1>
     <button onclick="dark()">Dark Mode</button>
     <button onclick="halloween()">Halloween Mode</button>
-    <h2>V2.12.1: Created a new game; 'Apple' and added mobile controls to it.</h2>
+    <h2>V2.13: Afte a while with no updates, I have decided to add a new game (wordle) and make a device detection system.</h2>
     <button onclick="toggleGame(1)">1. Number Game</button>
     <button onclick="toggleGame(2)">2. Rock Paper Scissors</button>
     <button onclick="toggleGame(3)">3. Quiz Game</button>
@@ -171,6 +171,8 @@
     <button onclick="toggleGame(5)">5. Memory Matching</button>
     <button onclick="toggleGame(6)">6. Invaders</button>
     <button onclick="window.location.href = 'apple.html'">7. Apple</button>
+    <div class="more-games"></div>
+    <button onclick="window.location.href = 'wordle.html'">8. Wordle</button>
     <div id="gameArea"></div>
     <div id="customAlert" class="alert">
         <p>There's already a game active, are you sure you'd like to continue with this action?</p>
@@ -182,6 +184,9 @@
         </div>
     </div>
     <script>
+     if (localStorage.getItem('banned') === 'true') {
+        window.location.href = 'index.html'
+    }
     //beginning of the dropdown
     document.addEventListener('DOMContentLoaded', () => {
     const contextMenu = document.getElementById('context-menu');

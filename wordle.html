@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Wordle Clone</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .tile {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        #keyboard {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+        }
+        .key {
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f8f8f8;
+            cursor: pointer;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Wordle Clone</h1>
+    <div id="game-board"></div>
+    <div id="keyboard"></div>
+
+    <script>
+     if (localStorage.getItem('banned') === 'true') {
+        window.location.href = 'index.html'
+    }
+        const words = ['APPLE', 'BEACH', 'CHAIR', 'DANCE', 'EAGLE'];
+        const targetWord = words[Math.floor(Math.random() * words.length)];
+        let currentRow = 0;
+        let currentTile = 0;
+        const maxAttempts = 6;
+
+        const gameBoard = document.getElementById('game-board');
+        const keyboard = document.getElementById('keyboard');
+
+        // Create game board
+        for (let i = 0; i < maxAttempts; i++) {
+            for (let j = 0; j < 5; j++) {
+                const tile = document.createElement('div');
+                tile.classList.add('tile');
+                gameBoard.appendChild(tile);
+            }
+        }
+
+        // Create keyboard
+        'QWERTYUIOPASDFGHJKLZXCVBNM'.split('').forEach(letter => {
+            const key = document.createElement('div');
+            key.classList.add('key');
+            key.textContent = letter;
+            key.addEventListener('click', () => handleInput(letter));
+            keyboard.appendChild(key);
+        });
+
+        function handleInput(letter) {
+            if (currentTile < 5 && currentRow < maxAttempts) {
+                const tile = gameBoard.children[currentRow * 5 + currentTile];
+                tile.textContent = letter;
+                currentTile++;
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                checkWord();
+            } else if (e.key === 'Backspace') {
+                deleteLetter();
+            } else if (e.key.match(/^[a-zA-Z]$/)) {
+                handleInput(e.key.toUpperCase());
+            }
+        });
+
+        function deleteLetter() {
+            if (currentTile > 0) {
+                currentTile--;
+                const tile = gameBoard.children[currentRow * 5 + currentTile];
+                tile.textContent = '';
+            }
+        }
+
+        function checkWord() {
+            if (currentTile === 5) {
+                const guess = Array.from(gameBoard.children)
+                    .slice(currentRow * 5, currentRow * 5 + 5)
+                    .map(tile => tile.textContent)
+                    .join('');
+
+                for (let i = 0; i < 5; i++) {
+                    const tile = gameBoard.children[currentRow * 5 + i];
+                    if (guess[i] === targetWord[i]) {
+                        tile.style.backgroundColor = 'green';
+                    } else if (targetWord.includes(guess[i])) {
+                        tile.style.backgroundColor = 'yellow';
+                    } else {
+                        tile.style.backgroundColor = 'gray';
+                    }
+                }
+
+                if (guess === targetWord) {
+                    alert('Congratulations! You guessed the word!');
+                } else if (currentRow === maxAttempts - 1) {
+                    alert(`Game over! The word was ${targetWord}`);
+                } else {
+                    currentRow++;
+                    currentTile = 0;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
