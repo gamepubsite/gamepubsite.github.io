@@ -82,24 +82,16 @@
 
   if (isMobile && !isTablet) {
       if (!localStorage.getItem('dev')) {
-    alert('You are detected on a mobile device!')
-    alert('You are being banned.')
-    alert('If you appeal the ban, you must provide your device ID.')
     localStorage.setItem('banned', 'true')
     window.location.href = 'ban.html';
   }
   } else if (isTablet) {
     if (!localStorage.getItem('dev')) {
-    alert('You are detected on a mobile device!')
-    alert('You are being banned.')
-    alert('If you appeal the ban, you must provide your device ID.')
     localStorage.setItem('banned', 'true')
     window.location.href = 'ban.html';
     }
   } else {
       if (localStorage.getItem('banned') !== 'true') {
-    alert('You are detected on a computer!')
-    alert("This does not mean you may/may not be unbanned if you're banned.")
   }
   }
 }
