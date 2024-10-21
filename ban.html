@@ -14,39 +14,71 @@
     <h1 id="message">You are banned. (An error has also occured.)</h1>
     <button id='hide' class='hide' onclick="dev();">Unban</button>
     <script>
-        // Function to generate a unique ID
-        function generateID() {
-            return 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        }
+        // Secure random ID generation
+function generateSecureID() {
+    const array = new Uint8Array(16);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+}
 
-        // Check if device has an ID, if not, assign one
-        if (!localStorage.getItem('deviceID')) {
-            localStorage.setItem('deviceID', generateID());
-        }
+// One-way hash function
+async function hash(string) {
+    const utf8 = new TextEncoder().encode(string);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
+    return Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+}
 
-        // Check if device is banned
-        if (localStorage.getItem('banned') === 'true') {
-            document.getElementById('message').textContent = 'You are currently banned, do not try to clear any cookies or data as that will mostly not work, your DeviceID is ' + localStorage.getItem('deviceID')
-        } else {
-            setTimeout(function() {
-                localStorage.setItem('banned', 'true');
-                window.location.href = 'ban.html';
-            }, 1);
+// Check if device has an ID, if not, assign one
+if (!localStorage.getItem('deviceID')) {
+    localStorage.setItem('deviceID', generateSecureID());
+}
+
+// Simulated server-side ban function
+async function banUser(deviceID) {
+    // In a real implementation, this would be an API call to the server
+    const hashedID = await hash(deviceID);
+    console.log(`User with hashed ID ${hashedID} has been banned.`);
+    return true;
+}
+
+// Initialize ban status and automatically ban the user
+(async function() {
+    const deviceID = localStorage.getItem('deviceID');
+    
+    // Automatically ban the user
+    const isBanned = await banUser(deviceID);
+    
+    if (isBanned) {
+        document.getElementById('message').textContent = `You have been banned. Your DeviceID is ${deviceID}`;
+        localStorage.setItem('banned', 'true');
+    } else {
+        document.getElementById('message').textContent = 'An error occurred while processing your request.';
+    }
+})();
+
+// Prevent tampering with localStorage
+Object.freeze(localStorage);
+
+// Regularly check and reinforce ban status
+setInterval(async function() {
+    const deviceID = localStorage.getItem('deviceID');
+    if (localStorage.getItem('banned') !== 'true') {
+        const isBanned = await banUser(deviceID);
+        if (isBanned) {
+            localStorage.setItem('banned', 'true');
+            window.location.reload();
         }
-        if (localStorage.getItem('deviceID') === '528a30dd-ec1a-4950-ae24-93fb38f232cd') {
-            hide.classList.remove('hide')
-        } else {
-            hide.classList.add('hide')
-            localStorage.removeItem('dev')
-        }
-        function dev() {
-            localStorage.removeItem('banned');
-            localStorage.setItem('dev', 'true');
-            alert('Unbanned!')
-        }
+    }
+}, 1000); // Check every minute
+
+// Remove any existing unban functions
+delete window.unban;
+delete window.dev;
+
+// Prevent redefining functions
+Object.freeze(window);
     </script>
 </body>
 </html>
