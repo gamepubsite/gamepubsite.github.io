@@ -8,11 +8,52 @@
         .hide {
             display: none;
         }
+        #adminPanel {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+        }
     </style>
 </head>
 <body>
     <h1 id="message">You are banned. (An error has also occured.)</h1>
+
+<div id="adminPanel" class="hide">
+        <h2>Admin Panel</h2>
+        <input type="text" id="deviceIdInput" placeholder="Enter Device ID">
+        <button id="unbanButton">Unban Device</button>
+        <p id="unbanMessage"></p>
+    </div>
     <script>
+
+
+(async function() {
+            // ... (previous code remains unchanged)
+
+            // Add admin panel functionality
+            const adminPassword = 'your_secret_password'; // Change this to your desired password
+            const enteredPassword = prompt('Enter admin password:');
+            
+            if (enteredPassword === adminPassword) {
+                document.getElementById('adminPanel').classList.remove('hide');
+                
+                const unbanButton = document.getElementById('unbanButton');
+                const deviceIdInput = document.getElementById('deviceIdInput');
+                const unbanMessage = document.getElementById('unbanMessage');
+                
+                unbanButton.addEventListener('click', async () => {
+                    const deviceIdToUnban = deviceIdInput.value.trim();
+                    if (deviceIdToUnban) {
+                        // In a real scenario, you would make an API call to unban the device
+                        // For this example, we'll just show a success message
+                        unbanMessage.textContent = `Device ${deviceIdToUnban} has been unbanned.`;
+                        deviceIdInput.value = '';
+                    } else {
+                        unbanMessage.textContent = 'Please enter a valid Device ID.';
+                    }
+                });
+            }
         // Use strict mode to catch more potential errors
 'use strict';
 
