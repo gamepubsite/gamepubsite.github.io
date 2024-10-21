@@ -13,7 +13,10 @@
 <body>
     <h1 id="message">You are banned. (An error has also occured.)</h1>
     <script>
-        // Secure random ID generation
+        // Use strict mode to catch more potential errors
+'use strict';
+
+// Secure random ID generation
 function generateSecureID() {
     const array = new Uint8Array(16);
     crypto.getRandomValues(array);
@@ -29,55 +32,83 @@ async function hash(string) {
         .join('');
 }
 
-// Check if device has an ID, if not, assign one
-if (!localStorage.getItem('deviceID')) {
-    localStorage.setItem('deviceID', generateSecureID());
-}
-
-// Simulated server-side ban function
-async function banUser(deviceID) {
-    // In a real implementation, this would be an API call to the server
+// Simulated server-side ban check (in reality, this would be an API call)
+async function checkBanStatus(deviceID) {
     const hashedID = await hash(deviceID);
-    console.log(`User with hashed ID ${hashedID} has been banned.`);
-    return true;
+    // Simulated server-side check
+    return true; // Always return true to simulate a permanent ban
 }
 
 // Initialize ban status and automatically ban the user
 (async function() {
-    const deviceID = localStorage.getItem('deviceID');
+    let deviceID = localStorage.getItem('deviceID');
+    if (!deviceID) {
+        deviceID = generateSecureID();
+        localStorage.setItem('deviceID', deviceID);
+    }
     
-    // Automatically ban the user
-    const isBanned = await banUser(deviceID);
+    const isBanned = await checkBanStatus(deviceID);
     
     if (isBanned) {
         document.getElementById('message').textContent = `You have been banned. Your DeviceID is ${deviceID}`;
-        localStorage.setItem('banned', 'true');
     } else {
         document.getElementById('message').textContent = 'An error occurred while processing your request.';
     }
-})();
 
-// Prevent tampering with localStorage
-Object.freeze(localStorage);
+    // Use a closure to protect the ban status
+    const banStatus = { isBanned: isBanned };
+    Object.freeze(banStatus);
 
-// Regularly check and reinforce ban status
-setInterval(async function() {
-    const deviceID = localStorage.getItem('deviceID');
-    if (localStorage.getItem('banned') !== 'true') {
-        const isBanned = await banUser(deviceID);
-        if (isBanned) {
-            localStorage.setItem('banned', 'true');
-            window.location.reload();
+    // Override localStorage methods
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = function(key, value) {
+        if (key === 'banned' || key === 'dev') {
+            console.error('Attempt to modify ban status detected');
+            return;
         }
-    }
-}, 1000); // Check every minute
+        originalSetItem.call(localStorage, key, value);
+    };
 
-// Remove any existing unban functions
-delete window.unban;
-delete window.dev;
+    const originalRemoveItem = localStorage.removeItem;
+    localStorage.removeItem = function(key) {
+        if (key === 'banned' || key === 'deviceID') {
+            console.error('Attempt to remove ban status detected');
+            return;
+        }
+        originalRemoveItem.call(localStorage, key);
+    };
 
-// Prevent redefining functions
-Object.freeze(window);
+    // Regularly check and reinforce ban status
+    setInterval(async function() {
+        const currentIsBanned = await checkBanStatus(deviceID);
+        if (currentIsBanned !== banStatus.isBanned) {
+            location.reload();
+        }
+    }, 5000); // Check every 5 seconds
+
+    // Prevent tampering with window object
+    Object.freeze(window);
+
+    // Prevent access to DevTools (this is not foolproof but adds another layer)
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.onkeydown = function(e) {
+        if (e.keyCode == 123) { // F12 key
+            return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { // Ctrl+Shift+I
+            return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { // Ctrl+Shift+C
+            return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { // Ctrl+Shift+J
+            return false;
+        }
+        if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { // Ctrl+U
+            return false;
+        }
+    };
+})();
     </script>
 </body>
 </html>
