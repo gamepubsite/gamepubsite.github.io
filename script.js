@@ -24,35 +24,10 @@
             return true; // Always return true to simulate a permanent ban
         }
 
-        // Admin panel functionality
-        function setupAdminPanel() {
-            const adminPassword = '6vC9vp4d'; // Change this to your desired password
-            const enteredPassword = prompt('Enter admin password:');
-            
-            if (enteredPassword === adminPassword) {
-                document.getElementById('adminPanel').classList.remove('hide');
-                
-                const unbanButton = document.getElementById('unbanButton');
-                const deviceIdInput = document.getElementById('deviceIdInput');
-                const unbanMessage = document.getElementById('unbanMessage');
-                
-                unbanButton.addEventListener('click', async () => {
-                    const deviceIdToUnban = deviceIdInput.value.trim();
-                    if (deviceIdToUnban) {
-                        localStorage.removeItem('banned');
-                        unbanMessage.textContent = `Device ${deviceIdToUnban} has been unbanned.`;
-                        deviceIdInput.value = '';
-                    } else {
-                        unbanMessage.textContent = 'Please enter a valid Device ID.';
-                    }
-                });
-            }
-        }
 
         // Main function
         (async function() {
             // Setup admin panel first
-            setupAdminPanel();
 
             let deviceID = localStorage.getItem('deviceID');
             if (!deviceID) {
