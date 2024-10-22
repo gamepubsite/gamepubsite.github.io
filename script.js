@@ -39,8 +39,7 @@
                 unbanButton.addEventListener('click', async () => {
                     const deviceIdToUnban = deviceIdInput.value.trim();
                     if (deviceIdToUnban) {
-                        // In a real scenario, you would make an API call to unban the device
-                        // For this example, we'll just show a success message
+                        localStorage.removeItem('banned');
                         unbanMessage.textContent = `Device ${deviceIdToUnban} has been unbanned.`;
                         deviceIdInput.value = '';
                     } else {
@@ -65,6 +64,7 @@
             
             if (isBanned) {
                 document.getElementById('message').textContent = `You have been banned. Your DeviceID is ${deviceID}`;
+                localStorage.setItem('banned', 'true');
             } else {
                 document.getElementById('message').textContent = 'An error occurred while processing your request.';
             }
