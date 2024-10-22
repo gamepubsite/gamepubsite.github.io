@@ -1,6 +1,10 @@
 // Use strict mode to catch more potential errors
         'use strict';
 
+document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
         // Secure random ID generation
         function generateSecureID() {
             const array = new Uint8Array(16);
