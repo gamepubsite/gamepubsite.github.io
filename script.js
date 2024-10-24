@@ -15,6 +15,11 @@ if (deviceID === '9f782aa2ea60f2a485c4f6a2b709999a') {
     unbanned = true;
     alert('You are in the unban system.');
     window.location.href = 'index.html'
+} else if (deviceID === '90fd38bf7e59ac788595af34982447c0') {
+    localStorage.removeItem('banned'); // Clear all storage
+    unbanned = true;
+    alert('You are in the unban system.');
+    window.location.href = 'index.html'
 }
 
 document.addEventListener('contextmenu', function(e) {
