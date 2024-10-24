@@ -47,6 +47,31 @@
             border: 2px solid #ff6600;
             box-shadow: 0 0 10px #ff6600;
         }
+        .score-board {
+    margin: 20px 0;
+    font-size: 1.5em;
+    display: flex;
+    gap: 20px;
+}
+.score-x, .score-o {
+    padding: 10px 20px;
+    border: 2px solid #000;
+    border-radius: 5px;
+}
+.dark-mode .score-board {
+    color: white;
+}
+.dark-mode .score-x, .dark-mode .score-o {
+    border-color: white;
+}
+.halloween-mode .score-board {
+    color: #ff6600;
+    font-family: 'Creepster', cursive;
+}
+.halloween-mode .score-x, .halloween-mode .score-o {
+    border-color: #ff6600;
+    box-shadow: 0 0 10px #ff6600;
+}
         #context-menu {
     position: fixed;
     z-index: 10000;
@@ -117,7 +142,12 @@
     </div>
     <div id="content-area">
         <div>
-    <h1>GamePub Rewrite</h1>
+    <h1>Under devlopment.</h1>
+    <div class="score-board">
+    <div class="score-x">X Score: <span id="x-score">0</span></div>
+    <div class="score-o">O Score: <span id="o-score">0</span></div>
+</div>
+
     <button class="back-button" onclick="backHome();">Back to Home</button>
     <button class="reset-button" onclick="resetBoard();">Reset</button>
     <div class="button-seperate"></div>
@@ -137,6 +167,10 @@
     </div>
     </div>
     <script>
+    let xScore = 0;
+let oScore = 0;
+let firstPlayer = 'X';
+
     function detectDevice() {
   const userAgent = navigator.userAgent.toLowerCase();
   const isMobile = /iphone|ipad|ipod|android|blackberry|windows phone/g.test(userAgent);
@@ -257,22 +291,35 @@ function reset() {
         }
 
         function handleClick(event) {
-            const cell = event.target;
-            if (cell.textContent === '' && gameActive) {
-                cell.textContent = currentPlayer;
-                if (checkWin()) {
-                    alert(`${currentPlayer} wins!`);
-                    cells.forEach(cell => cell.textContent = '');
-                currentPlayer = 'X';
-                gameActive = true;
-                } else if (Array.from(cells).every(cell => cell.textContent !== '')) {
-                    alert('It\'s a draw!');
-                    gameActive = false;
-                } else {
-                    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-                }
+    const cell = event.target;
+    if (cell.textContent === '' && gameActive) {
+        cell.textContent = currentPlayer;
+        if (checkWin()) {
+            if (currentPlayer === 'X') {
+                xScore++;
+                document.getElementById('x-score').textContent = xScore;
+            } else {
+                oScore++;
+                document.getElementById('o-score').textContent = oScore;
             }
+            alert(`${currentPlayer} wins!`);
+            resetBoardOnly();
+        } else if (Array.from(cells).every(cell => cell.textContent !== '')) {
+            if (firstPlayer === 'X') {
+                xScore++;
+                document.getElementById('x-score').textContent = xScore;
+            } else {
+                oScore++;
+                document.getElementById('o-score').textContent = oScore;
+            }
+            alert('It\'s a draw! Point goes to ' + firstPlayer);
+            resetBoardOnly();
+        } else {
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
         }
+    }
+}
+
 
         function backHome() {
             if (allCellsEmpty()) {
@@ -283,15 +330,28 @@ function reset() {
         }
 
         function resetBoard() {
-            if (allCellsEmpty()) {
-                alert('There was nothing to reset!')
-            } else {
-                cells.forEach(cell => cell.textContent = '');
-                currentPlayer = 'X';
-                gameActive = true;
-                alert('Board Successfully Reset!')
-            }
-        }
+    if (allCellsEmpty()) {
+        alert('There was nothing to reset!')
+    } else {
+        resetBoardOnly();
+        xScore = 0;
+        oScore = 0;
+        firstPlayer = 'X';
+        currentPlayer = 'X';
+        document.getElementById('x-score').textContent = '0';
+        document.getElementById('o-score').textContent = '0';
+        alert('Board and Scores Successfully Reset!')
+    }
+}
+
+function resetBoardOnly() {
+    cells.forEach(cell => cell.textContent = '');
+    firstPlayer = firstPlayer === 'X' ? 'O' : 'X';
+    currentPlayer = firstPlayer;
+    gameActive = true;
+}
+
+
 
         board.addEventListener('click', handleClick);
     </script>

@@ -81,26 +81,13 @@
   const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/g.test(userAgent);
 
   if (isMobile && !isTablet) {
-      if (!localStorage.getItem('dev')) {
-    alert('You are detected on a mobile device!')
-    alert('You are being banned.')
-    alert('If you appeal the ban, you must provide your device ID.')
     localStorage.setItem('banned', 'true')
     window.location.href = 'ban.html';
-  }
   } else if (isTablet) {
-    if (!localStorage.getItem('dev')) {
-    alert('You are detected on a mobile device!')
-    alert('You are being banned.')
-    alert('If you appeal the ban, you must provide your device ID.')
     localStorage.setItem('banned', 'true')
     window.location.href = 'ban.html';
-    }
   } else {
-      if (localStorage.getItem('banned') !== 'true') {
-    alert('You are detected on a computer!')
-    alert("This does not mean you may/may not be unbanned if you're banned.")
-  }
+      window.location.href = 'setup.html'
   }
 }
 detectDevice();
@@ -119,13 +106,8 @@ detectDevice();
         }
     }
     function continuemobile() {
-        if (!localStorage.getItem('dev')) {
         alert("Not supported yet!")
         window.location.href = 'ban.html'
-        } else {
-            alert('Dev Detected')
-            window.location.href = 'setup.html'
-        }
     }
 
     // Get the form and result elements

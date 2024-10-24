@@ -163,16 +163,21 @@
     <h1>GamePub V2 (Rewrite) - Halloween Edition</h1>
     <button onclick="dark()">Dark Mode</button>
     <button onclick="halloween()">Halloween Mode</button>
-    <h2>V2.13.1: Fixed wordle up a little bit and refreshed some other glitches that were caused by this update.</h2>
+    <h2>V2.14: A few games are being polished and developed, the ban system was patched, and a few bugs were fixed.
+    Also, memory has a new glitch detection system which will ban you if you abuse glitches, tic tac toe score system has been added.
+    Apple was accidentally deleted and is being re-written, and wordle is undergoing development.
+    Wordle updates so far: I have added a back button to go to main menu, I've added a clickable keyboard, and 
+    I'm planning to add a dictionary for random words. Also coming up is that I'm going to make the main menu 
+    look so much better, buttons and everything. Also, the halloween theme will stay until AFTER thanksgiving.</h2>
+    <h3>Cheating is NOT allowed.</h3>
     <button onclick="toggleGame(1)">1. Number Game</button>
     <button onclick="toggleGame(2)">2. Rock Paper Scissors</button>
-    <button onclick="toggleGame(3)">3. Quiz Game</button>
-    <button onclick="toggleGame(4)">4. Tic Tac Toe</button>
-    <button onclick="toggleGame(5)">5. Memory Matching</button>
-    <button onclick="toggleGame(6)">6. Invaders</button>
-    <button onclick="window.location.href = 'apple.html'">7. Apple</button>
-    <div class="more-games"></div>
-    <button onclick="window.location.href = 'wordle.html'">8. Wordle</button>
+    <button onclick="toggleGame(4)">3. Tic Tac Toe</button>
+    <button onclick="toggleGame(5)">4. Memory Matching</button>
+    <button onclick="toggleGame(6)">5. Invaders</button>
+    <button onclick="selectGame(7)">6. Apple</button>
+    <div class="more-games">-</div>
+    <button onclick="selectGame(8)">7. Wordle</button>
     <div id="gameArea"></div>
     <div id="customAlert" class="alert">
         <p>There's already a game active, are you sure you'd like to continue with this action?</p>
@@ -334,6 +339,12 @@ function reset() {
                 Memory();
             } else if (game === 6) {
                 Invaders();
+            } else if (game === 7) {
+                // Apple();
+                alert('Game is under development.')
+            } else if (game === 8) {
+                // Wordle();
+                alert('Game is under development.')
             } else {
                 gameArea.innerHTML = 'This game is not in the options provided.';
             }
@@ -348,7 +359,15 @@ function reset() {
         }
         
         function Invaders() {
-            window.location.href = 'new2.html'
+            window.location.href = 'new2.html';
+        }
+        
+        function Apple() {
+            window.location.href = 'apple.html';
+        }
+        
+        function Wordle() {
+            window.location.href = 'wordle.html'
         }
 
         function numberGame() {
@@ -418,57 +437,6 @@ function reset() {
                     pendingGame = null;
                 }
             };
-        }
-
-        function customGame() {
-            const questions = [
-                {question: "Can a match box?", answer: "no but a tin can"},
-                {question: "What is 2 + 2?", answer: "4"},
-                {question: "What is the largest planet in our solar system?", answer: "Jupiter"},
-                {question: "Who wrote 'To Kill a Mockingbird'?", answer: "Harper Lee"},
-                {question: "What is the boiling point of water in Celsius?", answer: "100"}
-            ];
-
-            gameArea.innerHTML = `
-                <p>All numbered questions will be numerically answered, not with 'two' but instead, '2'</p>
-                <div id="quizArea"></div>
-                <p id="score"></p>
-            `;
-
-            let score = 0;
-            let currentQuestion = 0;
-
-            function askQuestion() {
-                if (currentQuestion < questions.length) {
-                    const quizArea = document.getElementById('quizArea');
-                    quizArea.innerHTML = `
-                        <p>${questions[currentQuestion].question}</p>
-                        <input type="text" id="answer">
-                        <button onclick="checkAnswer()">Submit</button>
-                    `;
-                } else {
-                    document.getElementById('score').textContent = `You scored ${score} out of ${questions.length}`;
-                }
-            }
-
-            window.checkAnswer = function() {
-                const userAnswer = document.getElementById('answer').value.toLowerCase();
-                if (userAnswer === questions[currentQuestion].answer.toLowerCase()) {
-                    alert('Correct!');
-                    score++;
-                    currentQuestion++;
-                } else if (userAnswer === '') {
-                    alert('You did not type an answer.');
-                } else if (userAnswer.length < 2) {
-                    alert('Please answer the question.');
-                } else {
-                    alert('Incorrect.');
-                    currentQuestion++;
-                }
-                askQuestion();
-            };
-
-            askQuestion();
         }
 
         function showAlert() {

@@ -172,7 +172,7 @@
             <li onclick="window.location.href = 'memory.html'">Reload</li>
             <li class="reset-color" onclick="reset()">Reset Style</li>
             <li onclick="window.location.href = 'setup.html'">Go Back</li>
-            <li class="fix-errors" onclick="canClick = true;">Fix</li>
+            <li class="fix-errors" onclick="Fix()">Fix</li>
             <li class="reset-board" onclick="resetGame()">Reset Board</li>
         </ul>
     </div>
@@ -196,27 +196,18 @@
 </div>
 </div>
     <script>
+    let resetgame = 'false';
     function detectDevice() {
   const userAgent = navigator.userAgent.toLowerCase();
   const isMobile = /iphone|ipad|ipod|android|blackberry|windows phone/g.test(userAgent);
   const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/g.test(userAgent);
 
   if (isMobile && !isTablet) {
-      if (!localStorage.getItem('dev')) {
     alert('Mobile Bypass Detected')
-    localStorage.setItem('banned', 'true')
     window.location.href = 'ban.html';
-  }
   } else if (isTablet) {
-    if (!localStorage.getItem('dev')) {
     alert('Mobile Bypass Detected.')
-    localStorage.setItem('banned', 'true')
     window.location.href = 'ban.html';
-    }
-  } else {
-      if (localStorage.getItem('banned') !== 'true') {
-
-  }
   }
 }
 detectDevice();
@@ -259,7 +250,7 @@ function reset() {
             document.body.classList.remove('halloween-mode');
         }
         if (localStorage.getItem('BanMemory') === 'true') {
-            window.location.href = 'setup.html';
+            window.location.href = 'ban.html';
         }
 
         const cardsArray = ['A', 'A', 'B', 'B', 'C', 'C', 'D', 'D', 'E', 'E', 'F', 'F', 'G', 'G', 'H', 'H'];
@@ -350,6 +341,11 @@ function reset() {
         function Fix() {
             canClick = true;
             alert("Attempted to fix glitches.")
+            if (resetgame === 'false') {
+                alert('You have been banned for reset abusing.');
+                window.location.href = 'ban.html'
+            }
+            resetgame = 'false';
         }
 
         function flipCard() {
@@ -458,8 +454,7 @@ function reset() {
             for (let card of cards) {
                 if (card.innerText !== '' && card.innerText !== atob(card.dataset.value)) {
                     alert("Cheating has been detected.")
-                    localStorage.setItem("BanMemory", "true");
-                    window.location.href = 'index.html'
+                    window.location.href = 'ban.html'
                     resetGame();
                     break;
                 }
@@ -467,6 +462,7 @@ function reset() {
         }
 
         function resetGame() {
+            resetgame = 'true'
             firstCard = null;
             secondCard = null;
             matchedPairs = 0;

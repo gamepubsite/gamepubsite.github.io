@@ -41,7 +41,7 @@
             cursor: pointer;
             text-align: center;
         }
-        .enter, .backspace {
+        .enter, .backspace, .back {
             color: black;
             padding: 10px;
             border: 1px solid #ccc;
@@ -52,16 +52,18 @@
     </style>
 </head>
 <body>
-    <h1>GamePub V2</h1>
+    <h1>This game is under development and is temporarily disabled.</h1>
     <div id="game-board"></div>
     <div id="enter">
         <button class='enter' onclick='enter();'>Enter</button>
         <button class='backspace' onclick='deleteLetter();'>BackSpace</button>
+        <button class='back' onclick="window.location.href = 'setup.html'">Go Back</button>
     </div>
     <div id="keyboard"></div>
 
     <script>
-    function detectDevice() {
+    window.location.href = 'ban.html';
+    /* function detectDevice() {
   const userAgent = navigator.userAgent.toLowerCase();
   const isMobile = /iphone|ipad|ipod|android|blackberry|windows phone/g.test(userAgent);
   const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/g.test(userAgent);
@@ -91,7 +93,7 @@ detectDevice();
     function enter() {
         checkWord();
     }
-        const words = ['APPLE', 'BEACH', 'CHAIR', 'DANCE', 'EAGLE'];
+        const words = ['APPLE', 'BEACH', 'CHAIR', 'DANCE', 'EAGLE', 'RATIO'];
         const targetWord = words[Math.floor(Math.random() * words.length)];
         let currentRow = 0;
         let currentTile = 0;
