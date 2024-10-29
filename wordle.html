@@ -48,22 +48,23 @@
             background-color: #f8f8f8;
             cursor: pointer;
             text-align: center;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>This game is under development and is temporarily disabled.</h1>
+    <h1>Wordle (Testing)</h1>
+        <button class='back' onclick="window.location.href = 'setup.html'">Go Back</button>
     <div id="game-board"></div>
     <div id="enter">
         <button class='enter' onclick='enter();'>Enter</button>
         <button class='backspace' onclick='deleteLetter();'>BackSpace</button>
-        <button class='back' onclick="window.location.href = 'setup.html'">Go Back</button>
     </div>
     <div id="keyboard"></div>
 
     <script>
-    window.location.href = 'ban.html';
-    /* const userAgent = navigator.userAgent.toLowerCase();
+    /* */
+const userAgent = navigator.userAgent.toLowerCase();
 const isMobile = /iphone|ipad|ipod|android|blackberry|windows phone/g.test(userAgent);
 const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/g.test(userAgent);
 

@@ -49,6 +49,36 @@
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 1000;
         }
+        .buttons {
+            padding: 10px 20px; 
+            font-size: 1em; 
+            cursor: pointer; 
+            background: white; 
+            color: black; 
+            border-radius: 15px; 
+            border: 2px solid Black;
+        }
+        .buttons1 {
+            padding: 10px 20px; 
+            font-size: 1em; 
+            cursor: pointer; 
+            background: white; 
+            color: black; 
+            border-radius: 15px; 
+            border: 2px solid Black;
+        }
+        #gameArea {
+            background-color: white;
+            color: black;
+            border: 2px solid black;
+            box-shadow: 0 0 10px black;
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .more-games {
+            margin-top: 15px;
+        }
         /* Dark mode styles */
         .dark-mode {
             background-color: black;
@@ -62,6 +92,33 @@
         .dark-mode .alert {
             background-color: black;
             color: white;
+        }
+        .dark-mode .buttons {
+            padding: 10px 20px; 
+            font-size: 1em; 
+            cursor: pointer; 
+            background: black; 
+            color: white; 
+            border-radius: 15px; 
+            border: 2px solid white;
+        }
+        .dark-mode .buttons1 {
+            padding: 10px 20px; 
+            font-size: 1em; 
+            cursor: pointer; 
+            background: black; 
+            color: white; 
+            border-radius: 15px; 
+            border: 2px solid white;
+        }
+        .dark-mode #gameArea {
+            background-color: black;
+            color: white;
+            border: 2px solid white;
+            box-shadow: 0 0 10px white;
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 10px;
         }
         /* Halloween mode styles */
         .halloween-mode {
@@ -87,6 +144,66 @@
             box-shadow: 0 0 10px #ff6600;
             padding: 20px;
             margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .halloween-mode .buttons {
+            padding: 10px 20px; 
+            font-size: 1em; 
+            cursor: pointer; 
+            background-color: #ff6600; 
+            color: #4a4a4a; 
+            border-radius: 15px; 
+            border: 2px solid #ff6600;
+        }
+        .halloween-mode .buttons1 {
+            padding: 10px 20px; 
+            font-size: 1em; 
+            cursor: pointer; 
+            background-color: #ff6600; 
+            color: #4a4a4a; 
+            border-radius: 15px; 
+            border: 2px solid #ff6600;
+        }
+        .christmas-mode {
+            background-color: green;
+            color: red;
+        }
+        .christmas-mode .stats, .halloween-mode .Clear, .halloween-mode button {
+            background: green;
+            color: red;
+            border: 2px solid red;
+        }
+        .christmas-mode .alert {
+            background-color: green;
+            color: red;
+            border: 2px solid red;
+        }
+        .christmas-mode #gameArea {
+            background-color: green;
+            color: red;
+            border: 2px solid red;
+            box-shadow: 0 0 10px red;
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .christmas-mode .buttons {
+            padding: 10px 20px; 
+            font-size: 1em; 
+            cursor: pointer; 
+            background-color: blue; 
+            color: white; 
+            border-radius: 15px; 
+            border: 2px solid white;
+        }
+        .christmas-mode .buttons1 {
+            padding: 10px 20px; 
+            font-size: 1em; 
+            cursor: pointer; 
+            background-color: blue; 
+            color: white; 
+            border-radius: 15px; 
+            border: 2px solid white;
         }
         /*start of context menu*/
         #context-menu {
@@ -146,6 +263,20 @@
         .halloween-mode #context-menu ul li:hover {
             background: #ff6600;
             color: #1a1a1a;
+        }
+        .christmas-mode #context-menu {
+            background: blue;
+            border: 2px solid white;
+        }
+
+        .christmas-mode #context-menu ul li {
+            color: green;
+        }
+
+        .christmas-mode #context-menu ul li:hover {
+            background: green;
+            color: red;
+        }
             /*end of context menu*/
     </style>
 </head>
@@ -160,24 +291,23 @@
     </div>
     <div id="content-area">
         <div>
-    <h1>GamePub V2 (Rewrite) - Halloween Edition</h1>
-    <button onclick="dark()">Dark Mode</button>
-    <button onclick="halloween()">Halloween Mode</button>
-    <h2>V2.14: A few games are being polished and developed, the ban system was patched, and a few bugs were fixed.
-    Also, memory has a new glitch detection system which will ban you if you abuse glitches, tic tac toe score system has been added.
-    Apple was accidentally deleted and is being re-written, and wordle is undergoing development.
-    Wordle updates so far: I have added a back button to go to main menu, I've added a clickable keyboard, and 
-    I'm planning to add a dictionary for random words. Also coming up is that I'm going to make the main menu 
-    look so much better, buttons and everything. Also, the halloween theme will stay until AFTER thanksgiving.</h2>
+    <h1>GamePub V2</h1>
+    <button class="buttons1" onclick="dark()">Dark Mode</button>
+    <button class="buttons1" onclick="halloween()">Halloween Mode</button>
+    <button class="buttons1" onclick="christmas()">Christmas Mode</button>
+    <h2>V2.15: I'm currently deciding the removal of apple. Therefore apple is disabled and will ban you if you decide to enter it.
+    Tic-Tac-Toe has a score system. Wordle is under light development, so expect bugs.
+    TRUE UPDATES: The main menu has been updated and is pending transitions for smoother style changes.
+    I'm remaking rock paper scissors as it's own 2d game. Christmas mode coming after the removal of halloween mode.</h2>
     <h3>Cheating is NOT allowed.</h3>
-    <button onclick="toggleGame(1)">1. Number Game</button>
-    <button onclick="toggleGame(2)">2. Rock Paper Scissors</button>
-    <button onclick="toggleGame(4)">3. Tic Tac Toe</button>
-    <button onclick="toggleGame(5)">4. Memory Matching</button>
-    <button onclick="toggleGame(6)">5. Invaders</button>
-    <button onclick="selectGame(7)">6. Apple</button>
-    <div class="more-games">-</div>
-    <button onclick="selectGame(8)">7. Wordle</button>
+    <button class="buttons" onclick="toggleGame(1)">1. Number Game</button>
+    <button class="buttons" onclick="selectGame(2)">2. Rock Paper Scissors</button>
+    <button class="buttons" onclick="toggleGame(4)">3. Tic Tac Toe</button>
+    <button class="buttons" onclick="toggleGame(5)">4. Memory Matching</button>
+    <button class="buttons" onclick="toggleGame(6)">5. Invaders</button>
+    <button class="buttons" onclick="selectGame(7)">6. Apple</button>
+    <div class="more-games"></div>
+    <button class="buttons" onclick="toggleGame(8)">7. Wordle</button>
     <div id="gameArea"></div>
     <div id="customAlert" class="alert">
         <p>There's already a game active, are you sure you'd like to continue with this action?</p>
@@ -274,6 +404,10 @@ function reset() {
         if (localStorage.getItem('Halloween') === 'true') {
             document.body.classList.add('halloween-mode');
         }
+        
+        if (localStorage.getItem('Christmas') === 'true') {
+            document.body.classList.add('christmas-mode');
+        }
 
         function dark() {
             document.body.classList.remove('halloween-mode');
@@ -298,6 +432,20 @@ function reset() {
                 localStorage.setItem('Halloween', 'true');
             }
         }
+        function christmas() {
+            alert("This style has not been released yet.")
+            /*document.body.classList.remove('dark-mode');
+            document.body.classList.remove('halloween-mode');
+            localStorage.setItem('Dark', 'false');
+            localStorage.setItem('Halloween', 'false');
+            if (document.body.classList.contains('christmas-mode')) {
+                document.body.classList.remove('christmas-mode');
+                localStorage.setItem('Christmas', 'false');
+            } else {
+                document.body.classList.add('christmas-mode');
+                localStorage.setItem('Christmas', 'true');
+            }*/
+        }
 
         function toggleGame(game) {
             if (currentGame !== null && currentGame !== game) {
@@ -318,7 +466,8 @@ function reset() {
             if (game === 1) {
                 numberGame();
             } else if (game === 2) {
-                rockPaperScissors();
+                //rockPaperScissors();
+                alert('Upcoming updates! (Disabled)')
             } else if (game === 3) {
                 customGame();
             } else if (game === 4) {
@@ -331,8 +480,8 @@ function reset() {
                 // Apple();
                 alert('Game is under development.')
             } else if (game === 8) {
-                // Wordle();
-                alert('Game is under development.')
+                Wordle();
+                alert('Game is under LIGHT development and probably has errors.')
             } else {
                 gameArea.innerHTML = 'This game is not in the options provided.';
             }
@@ -372,18 +521,15 @@ function reset() {
                 const guess = parseInt(document.getElementById('guess').value);
                 const result = document.getElementById('result');
                 if (guess === randomNumber) {
-                    alert('Correct!');
-                    gameArea.innerHTML = '';
+                    gameArea.innerHTML = 'Correct!';
                     currentGame = null;
                     pendingGame = null;
                 } else if (guess > 10 || guess < 1) {
-                    alert('Invalid number.');
-                    gameArea.innerHTML = '';
+                    gameArea.innerHTML = 'Invalid Number!';
                     currentGame = null;
                     pendingGame = null;
                 } else {
-                    alert('Incorrect.');
-                    gameArea.innerHTML = '';
+                    gameArea.innerHTML = 'Incorrect!';
                     currentGame = null;
                     pendingGame = null;
                 }
@@ -405,8 +551,7 @@ function reset() {
                 const result = document.getElementById('result');
 
                 if (playerChoice === computerChoice) {
-                    alert('You tied!');
-                    gameArea.innerHTML = '';
+                    gameArea.innerHTML = "It's a tie!";
                     currentGame = null;
                     pendingGame = null;
                 } else if (
@@ -414,13 +559,11 @@ function reset() {
                     (playerChoice === 'paper' && computerChoice === 'rock') ||
                     (playerChoice === 'scissors' && computerChoice === 'paper')
                 ) {
-                    alert('You win!');
-                    gameArea.innerHTML = '';
+                    gameArea.innerHTML = 'You won!';
                     currentGame = null;
                     pendingGame = null;
                 } else {
-                    alert('You lose!');
-                    gameArea.innerHTML = '';
+                    gameArea.innerHTML = 'You lost. :(';
                     currentGame = null;
                     pendingGame = null;
                 }
