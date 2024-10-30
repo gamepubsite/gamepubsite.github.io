@@ -1,5 +1,72 @@
 'use strict';
 
+
+
+function reset() {
+            localStorage.setItem('Halloween', 'false');
+            localStorage.setItem('Dark', 'false');
+            localStorage.setItem('Christmas', 'false');
+            document.body.classList.remove('dark-mode');
+            document.body.classList.remove('halloween-mode');
+            document.body.classList.remove('christmas-mode');
+        }
+
+        // Check and apply dark mode state from localStorage
+        if (localStorage.getItem('Dark') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Check and apply Halloween mode state from localStorage
+        if (localStorage.getItem('Halloween') === 'true') {
+            document.body.classList.add('halloween-mode');
+        }
+        
+        if (localStorage.getItem('Christmas') === 'true') {
+            document.body.classList.add('christmas-mode');
+        }
+
+        function dark() {
+            document.body.classList.remove('halloween-mode');
+            document.body.classList.remove('christmas-mode');
+            localStorage.setItem('Halloween', 'false');
+            localStorage.setItem('Christmas', 'false');
+            if (document.body.classList.contains('dark-mode')) {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('Dark', 'false');
+            } else {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('Dark', 'true');
+            }
+        }
+
+        function halloween() {
+            /*document.body.classList.remove('dark-mode');
+            document.body.classList.remove('christmas-mode');
+            localStorage.setItem('Dark', 'false');
+            localStorage.setItem('Christmas', 'false');
+            if (document.body.classList.contains('halloween-mode')) {
+                document.body.classList.remove('halloween-mode');
+                localStorage.setItem('Halloween', 'false');
+            } else {
+                document.body.classList.add('halloween-mode');
+                localStorage.setItem('Halloween', 'true');
+            }*/
+        }
+        function christmas() {
+            document.body.classList.remove('dark-mode');
+            document.body.classList.remove('halloween-mode');
+            localStorage.setItem('Dark', 'false');
+            localStorage.setItem('Halloween', 'false');
+            if (document.body.classList.contains('christmas-mode')) {
+                document.body.classList.remove('christmas-mode');
+                localStorage.setItem('Christmas', 'false');
+            } else {
+                document.body.classList.add('christmas-mode');
+                localStorage.setItem('Christmas', 'true');
+            }
+        }
+
+
 // Initialize variables
 let deviceID = localStorage.getItem('deviceID');
 let unbanned = false;

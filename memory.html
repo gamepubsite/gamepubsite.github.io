@@ -21,7 +21,16 @@
             grid-gap: 10px;
             justify-content: center;
         }
-        .goback-button { margin-top: 20px; padding: 10px 20px; font-size: 1em; cursor: pointer; background: white; color: black; border-radius: 15px; border: 2px solid Black;}
+        .goback-button { 
+            margin-top: 20px; 
+            padding: 10px 20px; 
+            font-size: 1em; 
+            cursor: pointer; 
+            background: white; 
+            color: black; 
+            border-radius: 15px; 
+            border: 2px solid Black;
+        }
         .card {
             width: 100px;
             height: 100px;
@@ -107,6 +116,24 @@
             color: #ff6600;
             border: 2px solid #ff6600;
         }
+        .christmas-mode {
+            background-color: green;
+            color: red;
+        }
+        .christmas-mode .alert {
+            background-color: blue;
+            color: white;
+            border: 2px solid red;
+        }
+        .christmas-mode .goback-button {
+            background-color: blue;
+            color: white;
+        }
+        .christmas-mode .grid {
+            background-color: red;
+            color: white;
+            margin-bottom: 5px;
+        }
         #context-menu {
     position: fixed;
     z-index: 10000;
@@ -182,7 +209,7 @@
     <button class="goback-button" onclick="back()">Go Back</button>
     <button onclick="Reset()">Reset</button>
     <button onclick="dark()">Dark Mode</button>
-    <button onclick="halloween()">Halloween Mode</button>
+    <button onclick="christmas()">Christmas Mode</button>
     <button onclick="Fix()">Fix Errors</button>
     <div class="grid" id="grid"></div>
     <div id="customAlert" class="alert">
@@ -243,12 +270,7 @@ detectDevice();
         });
     });
 });
-function reset() {
-            localStorage.setItem('Halloween', 'false');
-            localStorage.setItem('Dark', 'false');
-            document.body.classList.remove('dark-mode');
-            document.body.classList.remove('halloween-mode');
-        }
+
         if (localStorage.getItem('BanMemory') === 'true') {
             window.location.href = 'ban.html';
         }
@@ -267,6 +289,15 @@ function reset() {
         // Anti-cheat: Encrypt card values
         const encryptedCards = cardsArray.map(card => btoa(card));
 
+        function reset() {
+            localStorage.setItem('Halloween', 'false');
+            localStorage.setItem('Dark', 'false');
+            localStorage.setItem('Christmas', 'false');
+            document.body.classList.remove('dark-mode');
+            document.body.classList.remove('halloween-mode');
+            document.body.classList.remove('christmas-mode');
+        }
+
         // Check and apply dark mode state from localStorage
         if (localStorage.getItem('Dark') === 'true') {
             document.body.classList.add('dark-mode');
@@ -276,10 +307,16 @@ function reset() {
         if (localStorage.getItem('Halloween') === 'true') {
             document.body.classList.add('halloween-mode');
         }
+        
+        if (localStorage.getItem('Christmas') === 'true') {
+            document.body.classList.add('christmas-mode');
+        }
 
         function dark() {
             document.body.classList.remove('halloween-mode');
+            document.body.classList.remove('christmas-mode');
             localStorage.setItem('Halloween', 'false');
+            localStorage.setItem('Christmas', 'false');
             if (document.body.classList.contains('dark-mode')) {
                 document.body.classList.remove('dark-mode');
                 localStorage.setItem('Dark', 'false');
@@ -290,14 +327,29 @@ function reset() {
         }
 
         function halloween() {
-            document.body.classList.remove('dark-mode');
+            /*document.body.classList.remove('dark-mode');
+            document.body.classList.remove('christmas-mode');
             localStorage.setItem('Dark', 'false');
+            localStorage.setItem('Christmas', 'false');
             if (document.body.classList.contains('halloween-mode')) {
                 document.body.classList.remove('halloween-mode');
                 localStorage.setItem('Halloween', 'false');
             } else {
                 document.body.classList.add('halloween-mode');
                 localStorage.setItem('Halloween', 'true');
+            }*/
+        }
+        function christmas() {
+            document.body.classList.remove('dark-mode');
+            document.body.classList.remove('halloween-mode');
+            localStorage.setItem('Dark', 'false');
+            localStorage.setItem('Halloween', 'false');
+            if (document.body.classList.contains('christmas-mode')) {
+                document.body.classList.remove('christmas-mode');
+                localStorage.setItem('Christmas', 'false');
+            } else {
+                document.body.classList.add('christmas-mode');
+                localStorage.setItem('Christmas', 'true');
             }
         }
 
@@ -384,7 +436,7 @@ function reset() {
                     document.getElementById('message').innerText = 'Congratulations! You matched all pairs!';
                     setTimeout(() => {
                         alert('Good job!')
-                        resetGame();
+                        resetGame1();
                     }, 500);
                 }
                 resetCards();
@@ -430,17 +482,6 @@ function reset() {
             }
         }
 
-        // Anti-cheat: Add these new functions
-        function checkGameProgress() {
-            const elapsedTime = (Date.now() - gameStartTime) / 1000; // in seconds
-            const expectedMaxPairs = Math.min(8, Math.floor(elapsedTime / 5)); // Assume max 1 pair per 5 seconds
-
-            if (matchedPairs > expectedMaxPairs) {
-                alert("Suspicious Activity Detected.")
-                resetGame();
-            }
-        }
-
         function preventConsoleCheat() {
             const originalConsoleLog = console.log;
             console.log = function() {
@@ -455,7 +496,7 @@ function reset() {
                 if (card.innerText !== '' && card.innerText !== atob(card.dataset.value)) {
                     alert("Cheating has been detected.")
                     window.location.href = 'ban.html'
-                    resetGame();
+                    resetGame1();
                     break;
                 }
             }
@@ -463,6 +504,16 @@ function reset() {
 
         function resetGame() {
             resetgame = 'true'
+            firstCard = null;
+            secondCard = null;
+            matchedPairs = 0;
+            clickCount = 0;
+            gameStartTime = Date.now();
+            createBoard();
+            document.getElementById('message').innerText = '';
+            Cancel();
+        }
+        function resetGame1() {
             firstCard = null;
             secondCard = null;
             matchedPairs = 0;

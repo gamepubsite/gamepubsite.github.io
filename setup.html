@@ -293,21 +293,17 @@
         <div>
     <h1>GamePub V2</h1>
     <button class="buttons1" onclick="dark()">Dark Mode</button>
-    <button class="buttons1" onclick="halloween()">Halloween Mode</button>
     <button class="buttons1" onclick="christmas()">Christmas Mode</button>
-    <h2>V2.15: I'm currently deciding the removal of apple. Therefore apple is disabled and will ban you if you decide to enter it.
-    Tic-Tac-Toe has a score system. Wordle is under light development, so expect bugs.
-    TRUE UPDATES: The main menu has been updated and is pending transitions for smoother style changes.
-    I'm remaking rock paper scissors as it's own 2d game. Christmas mode coming after the removal of halloween mode.</h2>
+    <h2>V2.15: Christmas Mode has been finished and released and halloween mode has been removed until next year.
+    Clarification: Halloween mode has NOT been deleted. Apple has been removed for certain circumstances.</h2>
     <h3>Cheating is NOT allowed.</h3>
     <button class="buttons" onclick="toggleGame(1)">1. Number Game</button>
     <button class="buttons" onclick="selectGame(2)">2. Rock Paper Scissors</button>
     <button class="buttons" onclick="toggleGame(4)">3. Tic Tac Toe</button>
     <button class="buttons" onclick="toggleGame(5)">4. Memory Matching</button>
     <button class="buttons" onclick="toggleGame(6)">5. Invaders</button>
-    <button class="buttons" onclick="selectGame(7)">6. Apple</button>
     <div class="more-games"></div>
-    <button class="buttons" onclick="toggleGame(8)">7. Wordle</button>
+    <button class="buttons" onclick="toggleGame(8)">6. Wordle</button>
     <div id="gameArea"></div>
     <div id="customAlert" class="alert">
         <p>There's already a game active, are you sure you'd like to continue with this action?</p>
@@ -364,12 +360,6 @@ if ((isMobile && !isTablet) || isTablet) {
         });
     });
 });
-function reset() {
-            localStorage.setItem('Halloween', 'false');
-            localStorage.setItem('Dark', 'false');
-            document.body.classList.remove('dark-mode');
-            document.body.classList.remove('halloween-mode');
-        }
     //end area of dropdown
     function download() {
     // Create an anchor element
@@ -394,6 +384,15 @@ function reset() {
         const gameArea = document.getElementById('gameArea');
         let currentGame = null;
         let pendingGame = null;
+        
+        function reset() {
+            localStorage.setItem('Halloween', 'false');
+            localStorage.setItem('Dark', 'false');
+            localStorage.setItem('Christmas', 'false');
+            document.body.classList.remove('dark-mode');
+            document.body.classList.remove('halloween-mode');
+            document.body.classList.remove('christmas-mode');
+        }
 
         // Check and apply dark mode state from localStorage
         if (localStorage.getItem('Dark') === 'true') {
@@ -411,7 +410,9 @@ function reset() {
 
         function dark() {
             document.body.classList.remove('halloween-mode');
+            document.body.classList.remove('christmas-mode');
             localStorage.setItem('Halloween', 'false');
+            localStorage.setItem('Christmas', 'false');
             if (document.body.classList.contains('dark-mode')) {
                 document.body.classList.remove('dark-mode');
                 localStorage.setItem('Dark', 'false');
@@ -422,19 +423,20 @@ function reset() {
         }
 
         function halloween() {
-            document.body.classList.remove('dark-mode');
+            /*document.body.classList.remove('dark-mode');
+            document.body.classList.remove('christmas-mode');
             localStorage.setItem('Dark', 'false');
+            localStorage.setItem('Christmas', 'false');
             if (document.body.classList.contains('halloween-mode')) {
                 document.body.classList.remove('halloween-mode');
                 localStorage.setItem('Halloween', 'false');
             } else {
                 document.body.classList.add('halloween-mode');
                 localStorage.setItem('Halloween', 'true');
-            }
+            }*/
         }
         function christmas() {
-            alert("This style has not been released yet.")
-            /*document.body.classList.remove('dark-mode');
+            document.body.classList.remove('dark-mode');
             document.body.classList.remove('halloween-mode');
             localStorage.setItem('Dark', 'false');
             localStorage.setItem('Halloween', 'false');
@@ -444,7 +446,7 @@ function reset() {
             } else {
                 document.body.classList.add('christmas-mode');
                 localStorage.setItem('Christmas', 'true');
-            }*/
+            }
         }
 
         function toggleGame(game) {

@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
     <style>
         body { font-family: Arial, sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .board { display: grid; grid-template-columns: repeat(3, 100px); grid-gap: 5px; }
+        .board { display: grid; grid-template-columns: repeat(3, 100px); grid-gap: 5px; margin-top: 5px;}
         .cell { width: 100px; height: 100px; display: flex; justify-content: center; align-items: center; font-size: 2em; cursor: pointer; border: 1px solid #000;}
         .back-button { margin-top: 20px; padding: 10px 20px; font-size: 1em; cursor: pointer; background: white; color: black; border-radius: 15px; border: 2px solid Black;}
         .reset-button { margin-top: 20px; padding: 10px 20px; font-size: 1em; cursor: pointer; background: yellow; color: blue; border-radius: 15px; border: 2px solid Black;}
@@ -46,6 +46,20 @@
             color: #ff6600;
             border: 2px solid #ff6600;
             box-shadow: 0 0 10px #ff6600;
+        }
+        .christmas-mode {
+            background-color: green;
+            color: red;
+        }
+        .christmas-mode .cell {
+            background-color: red;
+            color: black;
+            border: 2px solid blue;
+            box-shadow: 0 0 10px blue;
+        }
+        .christmas-mode .reset-button, .back-button {
+            background-color: blue;
+            color: white;
         }
         .score-board {
     margin: 20px 0;
@@ -152,7 +166,7 @@
     <button class="reset-button" onclick="resetBoard();">Reset</button>
     <div class="button-seperate"></div>
     <button onclick="dark()">Dark Mode</button>
-    <button onclick="halloween()">Halloween Mode</button>
+    <button onclick="christmas()">Christmas Mode</button>
     <div class="board">
         <div class="cell" data-index="0"></div>
         <div class="cell" data-index="1"></div>
@@ -227,12 +241,6 @@ detectDevice();
         });
     });
 });
-function reset() {
-            localStorage.setItem('Halloween', 'false');
-            localStorage.setItem('Dark', 'false');
-            document.body.classList.remove('dark-mode');
-            document.body.classList.remove('halloween-mode');
-        }
         document.addEventListener('contextmenu', event => event.preventDefault());
         const board = document.querySelector('.board');
         const cells = document.querySelectorAll('.cell');
@@ -244,6 +252,15 @@ function reset() {
             [0, 4, 8], [2, 4, 6]
         ];
 
+        function reset() {
+            localStorage.setItem('Halloween', 'false');
+            localStorage.setItem('Dark', 'false');
+            localStorage.setItem('Christmas', 'false');
+            document.body.classList.remove('dark-mode');
+            document.body.classList.remove('halloween-mode');
+            document.body.classList.remove('christmas-mode');
+        }
+
         // Check and apply dark mode state from localStorage
         if (localStorage.getItem('Dark') === 'true') {
             document.body.classList.add('dark-mode');
@@ -253,10 +270,16 @@ function reset() {
         if (localStorage.getItem('Halloween') === 'true') {
             document.body.classList.add('halloween-mode');
         }
+        
+        if (localStorage.getItem('Christmas') === 'true') {
+            document.body.classList.add('christmas-mode');
+        }
 
         function dark() {
             document.body.classList.remove('halloween-mode');
+            document.body.classList.remove('christmas-mode');
             localStorage.setItem('Halloween', 'false');
+            localStorage.setItem('Christmas', 'false');
             if (document.body.classList.contains('dark-mode')) {
                 document.body.classList.remove('dark-mode');
                 localStorage.setItem('Dark', 'false');
@@ -267,14 +290,29 @@ function reset() {
         }
 
         function halloween() {
-            document.body.classList.remove('dark-mode');
+            /*document.body.classList.remove('dark-mode');
+            document.body.classList.remove('christmas-mode');
             localStorage.setItem('Dark', 'false');
+            localStorage.setItem('Christmas', 'false');
             if (document.body.classList.contains('halloween-mode')) {
                 document.body.classList.remove('halloween-mode');
                 localStorage.setItem('Halloween', 'false');
             } else {
                 document.body.classList.add('halloween-mode');
                 localStorage.setItem('Halloween', 'true');
+            }*/
+        }
+        function christmas() {
+            document.body.classList.remove('dark-mode');
+            document.body.classList.remove('halloween-mode');
+            localStorage.setItem('Dark', 'false');
+            localStorage.setItem('Halloween', 'false');
+            if (document.body.classList.contains('christmas-mode')) {
+                document.body.classList.remove('christmas-mode');
+                localStorage.setItem('Christmas', 'false');
+            } else {
+                document.body.classList.add('christmas-mode');
+                localStorage.setItem('Christmas', 'true');
             }
         }
 
