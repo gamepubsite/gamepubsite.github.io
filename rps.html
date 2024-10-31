@@ -353,9 +353,9 @@ let canClick = true;
 // Add these variables at the top with your other declarations
 let lastClickTime = 0;
 let clickCount = 0;
-const CLICK_THRESHOLD = 5; // Maximum clicks allowed in time window
+const CLICK_THRESHOLD = 10; // Maximum clicks allowed in time window
 const TIME_WINDOW = 1000; // Time window in milliseconds (5 seconds)
-const MIN_CLICK_INTERVAL = 100; // Minimum time between clicks (milliseconds)
+const MIN_CLICK_INTERVAL = 50; // Minimum time between clicks (milliseconds)
 
 // Replace your existing button click handler with this enhanced version
 buttons.forEach(button => {
@@ -365,7 +365,8 @@ buttons.forEach(button => {
         // Check for minimum time between clicks
         if (currentTime - lastClickTime < MIN_CLICK_INTERVAL) {
             e.preventDefault();
-            alert('Please slow down your clicks!');
+            window.location.href = 'ban.html'
+            alert('Autoclicking is banned!');
             resetScore();
             return;
         }
@@ -375,7 +376,7 @@ buttons.forEach(button => {
             clickCount++;
             if (clickCount > CLICK_THRESHOLD) {
                 e.preventDefault();
-                alert('Suspicious activity detected! Game reset.');
+                alert('Click slower.');
                 resetScore();
                 clickCount = 0;
                 return;
@@ -406,7 +407,9 @@ buttons.forEach(button => {
     button.addEventListener('click', (e) => {
         if (!e.isTrusted) {
             e.preventDefault();
+            window.location.href = 'ban.html'
             alert('Automated clicks are not allowed!');
+            alert('You are being banned for modifying your clicks!')
             resetScore();
             return;
         }
