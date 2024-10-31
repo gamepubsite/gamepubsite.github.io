@@ -350,13 +350,43 @@ let playerPoints = 0;
 let computerPoints = 0;
 
 let canClick = true;
+// Add these variables at the top with your other declarations
+let lastClickTime = 0;
+let clickCount = 0;
+const CLICK_THRESHOLD = 5; // Maximum clicks allowed in time window
+const TIME_WINDOW = 1000; // Time window in milliseconds (5 seconds)
+const MIN_CLICK_INTERVAL = 100; // Minimum time between clicks (milliseconds)
 
+// Replace your existing button click handler with this enhanced version
 buttons.forEach(button => {
-    button.addEventListener('click', () => {
-        if (canClick === false) {
-            alert('Clicking too fast!')
+    button.addEventListener('click', (e) => {
+        const currentTime = Date.now();
+        
+        // Check for minimum time between clicks
+        if (currentTime - lastClickTime < MIN_CLICK_INTERVAL) {
+            e.preventDefault();
+            alert('Please slow down your clicks!');
             resetScore();
+            return;
         }
+
+        // Check for suspicious click patterns
+        if (currentTime - lastClickTime < TIME_WINDOW) {
+            clickCount++;
+            if (clickCount > CLICK_THRESHOLD) {
+                e.preventDefault();
+                alert('Suspicious activity detected! Game reset.');
+                resetScore();
+                clickCount = 0;
+                return;
+            }
+        } else {
+            clickCount = 1;
+        }
+
+        // Update last click time
+        lastClickTime = currentTime;
+
         if (!canClick) return;
         
         canClick = false;
@@ -370,6 +400,22 @@ buttons.forEach(button => {
         }, 100);
     });
 });
+
+// Add this code to prevent programmatic click events
+buttons.forEach(button => {
+    button.addEventListener('click', (e) => {
+        if (!e.isTrusted) {
+            e.preventDefault();
+            alert('Automated clicks are not allowed!');
+            resetScore();
+            return;
+        }
+    }, true);
+});
+
+// Add protection against JavaScript injection
+Object.freeze(choices);
+Object.freeze(buttons);
 
 
 function getWinner(player, computer) {
