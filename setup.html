@@ -295,9 +295,7 @@
     <h1>GamePub V2</h1>
     <button class="buttons1" onclick="dark()">Dark Mode</button>
     <button class="buttons1" onclick="christmas()">Christmas Mode</button>
-    <h2>V2.16: Christmas Mode has been finished and released and halloween mode has been removed until next year.
-    Clarification: Halloween mode has NOT been deleted. Apple has been removed for certain circumstances.</h2>
-    <h3>Cheating is NOT allowed.</h3>
+    <h2>V2.16.1: Patched the anti-cheat in 'memory'.</h3>
     <button class="buttons" onclick="toggleGame(1)">1. Number Game</button>
     <button class="buttons" onclick="selectGame(2)">2. Rock Paper Scissors</button>
     <button class="buttons" onclick="toggleGame(4)">3. Tic Tac Toe</button>
@@ -469,8 +467,7 @@ if ((isMobile && !isTablet) || isTablet) {
             if (game === 1) {
                 numberGame();
             } else if (game === 2) {
-                //rockPaperScissors();
-                alert('Upcoming updates! (Disabled)')
+                rockPaperScissors();
             } else if (game === 3) {
                 customGame();
             } else if (game === 4) {
@@ -540,37 +537,7 @@ if ((isMobile && !isTablet) || isTablet) {
         }
 
         function rockPaperScissors() {
-            gameArea.innerHTML = `
-                <p>Enter your choice (rock, paper, or scissors):</p>
-                <input type="text" id="playerChoice">
-                <button onclick="playRPS()">Submit</button>
-                <p id="result"></p>
-            `;
-
-            window.playRPS = function() {
-                const playerChoice = document.getElementById('playerChoice').value.toLowerCase();
-                const choices = ['rock', 'paper', 'scissors'];
-                const computerChoice = choices[Math.floor(Math.random() * 3)];
-                const result = document.getElementById('result');
-
-                if (playerChoice === computerChoice) {
-                    gameArea.innerHTML = "It's a tie!";
-                    currentGame = null;
-                    pendingGame = null;
-                } else if (
-                    (playerChoice === 'rock' && computerChoice === 'scissors') ||
-                    (playerChoice === 'paper' && computerChoice === 'rock') ||
-                    (playerChoice === 'scissors' && computerChoice === 'paper')
-                ) {
-                    gameArea.innerHTML = 'You won!';
-                    currentGame = null;
-                    pendingGame = null;
-                } else {
-                    gameArea.innerHTML = 'You lost. :(';
-                    currentGame = null;
-                    pendingGame = null;
-                }
-            };
+            window.location.href = "rps.html"
         }
 
         function showAlert() {
