@@ -295,16 +295,20 @@
     <h1>GamePub V2</h1>
     <button class="buttons1" onclick="dark()">Dark Mode</button>
     <button class="buttons1" onclick="christmas()">Christmas Mode</button>
-    <h2>V2.18: Finalized the Rock Paper Scissors game and any other bugs that were on my mind.</h2>
-    <h3>Cheating is NOT allowed.</h3>
+    <h2>V2.18.2: New release, a new game is coming soon and I finalized Circle, 
+    so it's ready for release! The new game is clicker.html (DO NOT TRY TO GET EARLY ACCESS TO IT.)
+    V2.18.1: Added the new circle clicker game. This game DOES have anti-cheat.
+    V2.18: Finalized the Rock Paper Scissors game and any other bugs that were on my mind.</h2>
+    <h3>Cheating is NOT allowed. </h3>
     <button class="buttons" onclick="toggleGame(1)">1. Number Game</button>
     <button class="buttons" onclick="toggleGame(2)">2. Rock Paper Scissors</button>
-    <button class="buttons" onclick="toggleGame(4)">3. Tic Tac Toe</button>
-    <button class="buttons" onclick="toggleGame(5)">4. Memory Matching</button>
-    <button class="buttons" onclick="toggleGame(6)">5. Invaders</button>
+    <button class="buttons" onclick="toggleGame(3)">3. Tic Tac Toe</button>
+    <button class="buttons" onclick="toggleGame(4)">4. Memory Matching</button>
+    <button class="buttons" onclick="toggleGame(5)">5. Invaders</button>
     <div class="more-games"></div>
-    <button class="buttons" onclick="toggleGame(8)">6. Wordle</button>
-    <button class="buttons" onclick="selectGame(7)">7. Coming Soon!</button>
+    <button class="buttons" onclick="toggleGame(6)">6. Wordle</button>
+    <button class="buttons" onclick="toggleGame(7)">7. Circle Clicker</button>
+    <button class="buttons" onclick="selectGame(8)">8. Clicker</button>
     <div id="gameArea"></div>
     <div id="customAlert" class="alert">
         <p>There's already a game active, are you sure you'd like to continue with this action?</p>
@@ -471,17 +475,18 @@ if ((isMobile && !isTablet) || isTablet) {
             } else if (game === 2) {
                 rockPaperScissors();
             } else if (game === 3) {
-                customGame();
-            } else if (game === 4) {
                 tic();
-            } else if (game === 5) {
+            } else if (game === 4) {
                 Memory();
+            } else if (game === 5) {
+                Invaders()
             } else if (game === 6) {
-                Invaders();
-            } else if (game === 7) {
-                alert("Coming soon!")
-            } else if (game === 8) {
                 Wordle();
+            } else if (game === 7) {
+                Circle();
+            } else if (game === 8) {
+                //Clicker();
+                alert("Unreleased!")
             } else {
                 gameArea.innerHTML = 'This game is not in the options provided.';
             }
@@ -506,7 +511,15 @@ if ((isMobile && !isTablet) || isTablet) {
         function Wordle() {
             window.location.href = 'wordle.html'
         }
-
+        
+        function Circle() {
+            window.location.href = 'circle.html'
+        }
+        
+        function Clicker() {
+            window.location.href = 'clicker.html'
+        }
+        
         function numberGame() {
             gameArea.innerHTML = `
                 <p>Try to guess the random number (1-10):</p>

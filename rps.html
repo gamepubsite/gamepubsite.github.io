@@ -236,8 +236,17 @@
     </div>
     <script>
     
+    const userAgent = navigator.userAgent.toLowerCase();
+const isMobile = /iphone|ipad|ipod|android|blackberry|windows phone/g.test(userAgent);
+const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/g.test(userAgent);
+
+if ((isMobile && !isTablet) || isTablet) {
+    localStorage.setItem('banned', 'true');
+    location.replace('ban.html');
+}
+    
     if (localStorage.getItem('banned') === 'true') {
-        window.location.href = 'index.html'
+        window.location.href = 'ban.html'
     }
     
     document.addEventListener('DOMContentLoaded', () => {
@@ -358,7 +367,7 @@ let canClick = true;
 let lastClickTime = 0;
 let clickCount = 0;
 const CLICK_THRESHOLD = 10; // Maximum clicks allowed in time window
-const TIME_WINDOW = 1000; // Time window in milliseconds (5 seconds)
+const TIME_WINDOW = 200; // Time window in milliseconds (5 seconds)
 const MIN_CLICK_INTERVAL = 50; // Minimum time between clicks (milliseconds)
 
 // Replace your existing button click handler with this enhanced version
@@ -380,6 +389,7 @@ buttons.forEach(button => {
             clickCount++;
             if (clickCount > CLICK_THRESHOLD) {
                 e.preventDefault();
+                window.location.href = 'index.html'
                 alert('Click slower.');
                 resetScore();
                 clickCount = 0;
