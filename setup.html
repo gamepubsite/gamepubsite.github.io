@@ -298,12 +298,13 @@
     <h2>V2.18: Finalized the Rock Paper Scissors game and any other bugs that were on my mind.</h2>
     <h3>Cheating is NOT allowed.</h3>
     <button class="buttons" onclick="toggleGame(1)">1. Number Game</button>
-    <button class="buttons" onclick="selectGame(2)">2. Rock Paper Scissors</button>
+    <button class="buttons" onclick="toggleGame(2)">2. Rock Paper Scissors</button>
     <button class="buttons" onclick="toggleGame(4)">3. Tic Tac Toe</button>
     <button class="buttons" onclick="toggleGame(5)">4. Memory Matching</button>
     <button class="buttons" onclick="toggleGame(6)">5. Invaders</button>
     <div class="more-games"></div>
     <button class="buttons" onclick="toggleGame(8)">6. Wordle</button>
+    <button class="buttons" onclick="selectGame(7)">7. Coming Soon!</button>
     <div id="gameArea"></div>
     <div id="customAlert" class="alert">
         <p>There's already a game active, are you sure you'd like to continue with this action?</p>
@@ -478,11 +479,9 @@ if ((isMobile && !isTablet) || isTablet) {
             } else if (game === 6) {
                 Invaders();
             } else if (game === 7) {
-                // Apple();
-                alert('Game is under development.')
+                alert("Coming soon!")
             } else if (game === 8) {
                 Wordle();
-                alert('Game is under LIGHT development and probably has errors.')
             } else {
                 gameArea.innerHTML = 'This game is not in the options provided.';
             }
