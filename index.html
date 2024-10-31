@@ -4,73 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GamePub V2</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-        }
-        form {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        input[type="number"] {
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-right: 10px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #result {
-            margin-top: 20px;
-            font-weight: bold;
-        }
-        .Hidden {
-            display: none;
-        }
-        .HiddenPC {
-            display: none;
-        }
-        .HiddenMOBILE {
-            display: none;
-        }
-    </style>
 </head>
 <body>
-    <div>
-        <h1>Device (1 = Computer; 2 = Mobile Device)</h1>
-        <h2>Mobile is not yet supported, do not select it or you will be banned.</h2>
-        <form id="numberForm">
-            <input type="number" id="numberInput" placeholder="Enter 1 or 2." required>
-            <button type="submit">Submit</button>
-        </form>
-        <div id="result"></div>
-        <div id=hidden>
-            <button id="Hidden1" class="HiddenPC" onclick="continuecomputer()">Yes</button>
-            <button id="Hidden2" class="HiddenMOBILE" onclick="continuemobile()">Yes</button>
-            <button id="Hidden3" class="Hidden" onclick="nocontinue()">No</button>
-        </div>
-            
-        </div>
-
   <script>
   if (localStorage.getItem('banned') === 'true') {
       window.location.href = 'ban.html'
@@ -86,65 +21,6 @@ if ((isMobile && !isTablet) || isTablet) {
 } else {
     location.replace('setup.html');
 }
-
-    function nocontinue() {
-        Hidden3.classList.add("Hidden")
-        Hidden2.classList.add("HiddenMOBILE")
-        Hidden1.classList.add("HiddenPC")
-        result.textContent = ''
-    }
-    function continuecomputer() {
-        if (localStorage.getItem('banned') === 'true') {
-            alert('You are currently banned.')
-            window.location.href = 'index.html'
-        } else {
-        window.location.href = 'device.html'
-        }
-    }
-    function continuemobile() {
-        alert("Not supported yet!")
-        window.location.href = 'ban.html'
-    }
-
-    // Get the form and result elements
-    const form = document.getElementById('numberForm');
-    const result = document.getElementById('result');
-
-    // Add event listener for form submission
-    form.addEventListener('submit', function(event) {
-        // Prevent the default form submission
-        event.preventDefault();
-
-        // Get the input value
-        const inputElement = document.getElementById('numberInput');
-        const inputValue = inputElement.value;
-
-        // Convert the input to a number
-        const number = parseFloat(inputValue);
-
-        // Check if the input is a valid number
-        if (!isNaN(number)) {
-            // The input is a valid number
-            // You can now use 'number' as your variable
-            if (number === 1) {
-                result.textContent = "Device = Computer; would you like to continue on computer?"
-                Hidden1.classList.remove("HiddenPC")
-                Hidden3.classList.remove("Hidden")
-            } else if (number === 2) {
-                result.textContent = "Device = Mobile; would you like to continue on mobile? You will be BANNED if you continue."
-                Hidden2.classList.remove("HiddenMOBILE")
-                Hidden3.classList.remove("Hidden")
-
-            // You can perform any other operations with 'number' here
-        } else {
-            // The input is not a valid number
-                        result.textContent = `This is not a device.`;
-        }
-        }
-
-        // Clear the input field
-        inputElement.value = '';
-    });
 </script>
 </body>
 </html>
