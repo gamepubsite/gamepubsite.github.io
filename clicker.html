@@ -104,6 +104,9 @@
 
     <script>
     
+    // Add at the start of your <script> section, before any existing code
+
+    
     const userAgent = navigator.userAgent.toLowerCase();
 const isMobile = /iphone|ipad|ipod|android|blackberry|windows phone/g.test(userAgent);
 const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/g.test(userAgent);
@@ -190,6 +193,75 @@ if ((isMobile && !isTablet) || isTablet) {
             { id: 'upgrade5', cost: 25000, pointsToAdd: 25, owned: 0, baseCost: 25000 },
             { id: 'upgrade6', cost: 100000, pointsToAdd: 50, owned: 0, baseCost: 100000 }
         ];
+        
+        // Add at the start of your <script> section, before any existing code
+const securityModule = {
+    originalValues: {
+        points: 0,
+        pointsPerClick: 1,
+        upgradeOwned: {},
+        upgradeCosts: {}
+    },
+    
+    initSecurity() {
+        this.originalValues.points = points;
+        this.originalValues.pointsPerClick = pointsPerClick;
+        upgrades.forEach(upgrade => {
+            this.originalValues.upgradeOwned[upgrade.id] = upgrade.owned;
+            this.originalValues.upgradeCosts[upgrade.id] = upgrade.cost;
+        });
+
+        // Check game state less frequently to avoid false positives
+        setInterval(this.checkGameState.bind(this), 5000);
+    },
+
+    checkGameState() {
+        // Calculate maximum possible points based on game duration and upgrades
+        const gameStartTime = localStorage.getItem('gameStartTime') || Date.now();
+        const timePlayed = (Date.now() - gameStartTime) / 1000; // in seconds
+        const maxPossiblePoints = this.calculateMaxPossiblePoints(timePlayed);
+
+        const suspicious = [
+            points > maxPossiblePoints,
+            pointsPerClick > this.calculateMaxPossibleClickPower(),
+            upgrades.some(u => u.owned > Math.min(20, Math.floor(points / u.baseCost)))
+        ];
+
+        if (suspicious.some(check => check === true)) {
+            this.resetGame();
+            location.href = 'ban.html';
+        }
+    },
+
+    calculateMaxPossiblePoints(timePlayed) {
+        // More generous calculation of possible points
+        const maxClicksPerSecond = 15; // reasonable human clicking speed
+        const basePoints = timePlayed * maxClicksPerSecond * pointsPerClick;
+        return basePoints * 1.5; // Add 50% buffer to avoid false positives
+    },
+
+    calculateMaxPossibleClickPower() {
+        // Calculate maximum legitimate click power based on total points earned
+        let maxPower = 1;
+        upgrades.forEach(upgrade => {
+            const maxPossibleUpgrades = Math.floor(points / upgrade.baseCost);
+            maxPower += upgrade.pointsToAdd * maxPossibleUpgrades;
+        });
+        return maxPower * 1.2; // Add 20% buffer
+    },
+
+    resetGame() {
+        points = 0;
+        pointsPerClick = 1;
+        upgrades.forEach(upgrade => {
+            upgrade.owned = 0;
+            upgrade.cost = upgrade.baseCost;
+        });
+        saveGame();
+    }
+};
+
+
 
         upgrades.forEach(upgrade => {
             upgrade.owned = parseInt(localStorage.getItem(`${upgrade.id}_owned`)) || 0;
