@@ -494,10 +494,8 @@ detectDevice();
             const cards = document.getElementsByClassName('card');
             for (let card of cards) {
                 if (card.innerText !== '' && card.innerText !== atob(card.dataset.value)) {
-                    alert("Cheating has been detected.")
-                    window.location.href = 'ban.html'
-                    resetGame1();
-                    break;
+                    alert("Cheating has been detected.");
+                    window.location.href = 'ban.html';
                 }
             }
         }
