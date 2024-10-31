@@ -496,6 +496,7 @@ detectDevice();
                 if (card.innerText !== '' && card.innerText !== atob(card.dataset.value)) {
                     alert("Cheating has been detected.");
                     window.location.href = 'ban.html';
+                    break;
                 }
             }
         }
