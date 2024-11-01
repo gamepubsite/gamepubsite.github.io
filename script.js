@@ -72,7 +72,7 @@ let deviceID = localStorage.getItem('deviceID');
 let unbanned = false;
 
 // Check for empty device ID
-if (deviceID === '9f782aa2ea60f2a485c4f6a2b709999a') {
+if (deviceID === '864dfa15016c4e36a66cb1e78c362b7f') {
     localStorage.removeItem('banned'); // Clear all storage
     unbanned = true;
     alert('You are in the unban system.');
