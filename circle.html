@@ -355,6 +355,9 @@ if ((isMobile && !isTablet) || isTablet) {
                 localStorage.setItem('Christmas', 'true');
             }
         }
+        
+        // Add this code right after your existing script tag
+
     
         const gameArea = document.getElementById('gameArea');
         const circle = document.getElementById('circle');
@@ -362,41 +365,36 @@ if ((isMobile && !isTablet) || isTablet) {
         const levelElement = document.getElementById('levelValue');
         let score = 0;
         let level = 1;
-        let moveInterval = 2000; // Starting speed: 2 seconds
+        let moveInterval = 2000;
         let intervalId = null;
 
         function moveCircle() {
             const maxX = gameArea.offsetWidth - circle.offsetWidth;
             const maxY = gameArea.offsetHeight - circle.offsetHeight;
-            
             const newX = Math.floor(Math.random() * maxX);
             const newY = Math.floor(Math.random() * maxY);
-            
             circle.style.left = newX + 'px';
             circle.style.top = newY + 'px';
-
-            // Start new timer when circle moves
             clearInterval(intervalId);
             intervalId = setInterval(missedCircle, moveInterval);
         }
 
         function missedCircle() {
-            score = Math.max(0, score - 1); // Prevent negative scores
+            score = Math.max(0, score - 1);
             scoreElement.textContent = score;
             updateLevel();
             moveCircle();
         }
-        
-        function resetScores() {
-    score = 0;
-    level = 1;
-    moveInterval = 2000;
-    scoreElement.textContent = score;
-    levelElement.textContent = level;
-    clearInterval(intervalId);
-    moveCircle();
-        }
 
+        function resetScores() {
+            score = 0;
+            level = 1;
+            moveInterval = 2000;
+            scoreElement.textContent = score;
+            levelElement.textContent = level;
+            clearInterval(intervalId);
+            moveCircle();
+        }
 
         function updateLevel() {
             const newLevel = Math.floor(score / 5) + 1;
@@ -407,17 +405,76 @@ if ((isMobile && !isTablet) || isTablet) {
             }
         }
 
-        circle.addEventListener('click', () => {
-            // Clear the current timer on successful click
-            clearInterval(intervalId);
+        const anticheat = {
+            clickTimes: [],
+            suspiciousClicks: 0,
+            maxSuspiciousClicks: 5,
+            minClickInterval: 150,
+            maxClicksPerSecond: 8,
             
+            checkClick: function(event) {
+                const now = Date.now();
+                this.clickTimes.push(now);
+                this.clickTimes = this.clickTimes.filter(time => now - time < 1000);
+                
+                if (this.clickTimes.length > this.maxClicksPerSecond) {
+                    this.handleViolation('Too many clicks per second');
+                    return false;
+                }
+                
+                if (this.clickTimes.length >= 2) {
+                    const lastInterval = this.clickTimes[this.clickTimes.length - 1] - 
+                                       this.clickTimes[this.clickTimes.length - 2];
+                    if (lastInterval < this.minClickInterval) {
+                        this.suspiciousClicks++;
+                        if (this.suspiciousClicks >= this.maxSuspiciousClicks) {
+                            this.handleViolation('Suspicious click pattern detected');
+                            return false;
+                        }
+                    }
+                }
+                
+                if (!event.isTrusted) {
+                    this.handleViolation('Automated click detected');
+                    return false;
+                }
+                
+                if (event.clientX === 0 && event.clientY === 0) {
+                    this.handleViolation('Invalid mouse position');
+                    return false;
+                }
+                
+                return true;
+            },
+            
+            handleViolation: function(reason) {
+                localStorage.setItem('banned', 'true');
+                localStorage.setItem('banReason', reason);
+                window.location.href = 'ban.html';
+            }
+        };
+
+        circle.addEventListener('click', (event) => {
+            if (!anticheat.checkClick(event)) {
+                return;
+            }
+            clearInterval(intervalId);
             score += 1;
             scoreElement.textContent = score;
             updateLevel();
             moveCircle();
         });
 
-        // Initial game setup
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'F12' || 
+                (event.ctrlKey && event.shiftKey && event.key === 'I') ||
+                (event.ctrlKey && event.key === 'U')) {
+                event.preventDefault();
+                anticheat.handleViolation('Developer tools detected');
+            }
+        });
+
+        Object.freeze(anticheat);
         moveCircle();
     </script>
 </body>
