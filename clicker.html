@@ -3,363 +3,482 @@
 <head>
     <title>GamePub V2</title>
     <style>
-    body {
-        text-align: center;
-        font-family: Arial, sans-serif;
-        background-color: #f0f0f0;
-        transition: all 0.3s ease;
-    }
-    #clickButton {
-        padding: 20px 40px;
-        font-size: 24px;
-        margin: 20px;
-        cursor: pointer;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 10px;
-    }
-    .upgrade {
-        padding: 10px 20px;
-        margin: 5px;
-        background-color: #008CBA;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    .upgrade:disabled {
-        background-color: #cccccc;
-        cursor: not-allowed;
-    }
-    .mode-button {
-        padding: 10px 20px;
-        margin: 5px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-    }
-    /* Dark Mode */
-    .dark-mode {
-        background-color: #1a1a1a;
-        color: #ffffff;
-    }
-    .dark-mode #clickButton {
-        background-color: #2d2d2d;
-        color: #ffffff;
-        border: 2px solid #4CAF50;
-    }
-    .dark-mode .upgrade {
-        background-color: #2d2d2d;
-        border: 2px solid #008CBA;
-    }
-    /* Halloween Mode */
-    .halloween-mode {
-        background-color: #1a1a1a;
-        color: #ff6600;
-    }
-    .halloween-mode #clickButton {
-        background-color: #ff6600;
-        color: #1a1a1a;
-        border: 2px solid #000000;
-    }
-    .halloween-mode .upgrade {
-        background-color: #ff6600;
-        color: #1a1a1a;
-        border: 2px solid #000000;
-    }
-    /* Christmas Mode */
-    .christmas-mode {
-        background-color: #ffffff;
-        color: #cc0000;
-    }
-    .christmas-mode #clickButton {
-        background-color: #cc0000;
-        color: #ffffff;
-        border: 2px solid #006600;
-    }
-    .christmas-mode .upgrade {
-        background-color: #006600;
-        color: #ffffff;
-        border: 2px solid #cc0000;
-    }
-</style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            transition: all 0.3s ease;
+        }
+        .container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px;
+            flex-wrap: wrap;
+        }
+        .section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px;
+            min-width: 300px;
+        }
+        #clickButton {
+            padding: 20px 40px;
+            font-size: 24px;
+            margin: 20px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            transition: transform 0.1s;
+        }
+        #clickButton:active {
+            transform: scale(0.95);
+        }
+        .upgrade, .prestige-upgrade {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 250px;
+        }
+        .achievement {
+            padding: 10px;
+            margin: 5px;
+            background-color: #ddd;
+            border-radius: 5px;
+            text-align: left;
+        }
+        .achievement.unlocked {
+            background-color: #90EE90;
+        }
+        .buff-active {
+            background-color: #FFD700;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+        }
+        .currency-display {
+            font-size: 1.2em;
+            margin: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        .prestige-button {
+            background-color: #9c27b0;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .event-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            background-color: #FFD700;
+            border-radius: 5px;
+            z-index: 1000;
+            animation: slideIn 0.5s;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Click Adventure</h1>
-    <button class="mode" onclick="window.location.href = 'setup.html'">Go Back</button>
-    <button class="mode" onclick="dark()">Dark Mode</button>
-    <button class="mode" onclick="christmas()">Christmas Mode</button>
-    <div id="stats">
-        <h2>Points: <span id="points">0</span></h2>
-        <h3>Points per Click: <span id="pointsPerClick">1</span></h3>
+<div class="container">
+    <div class="section" id="mainGame">
+        <h1>Advanced Clicker</h1>
+        <div class="currency-display">
+            <div>Points: <span id="points">0</span></div>
+            <div>Prestige Tokens: <span id="prestigeTokens">0</span></div>
+            <div>Achievement Points: <span id="achievementPoints">0</span></div>
+        </div>
+        <div>
+            <div>Points per Click: <span id="pointsPerClick">1</span></div>
+            <div>Points per Second: <span id="pointsPerSecond">0</span></div>
+            <div>Global Multiplier: <span id="globalMultiplier">1</span>x</div>
+        </div>
+        <button id="clickButton">CLICK ME!</button>
     </div>
-    
-    <button id="clickButton">CLICK ME!</button>
-    
-    <div id="upgrades">
-        <!-- Upgrades will be dynamically added here -->
+
+    <div class="section" id="upgradesSection">
+        <h2>Basic Upgrades</h2>
+        <div id="upgrades"></div>
     </div>
-    <button id="resetButton" style="margin-top: 20px; background-color: #ff4444; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Reset Game</button>
 
-    <script>
-    
-    // Add at the start of your <script> section, before any existing code
+    <div class="section" id="autoClickerSection">
+        <h2>Auto-Clickers</h2>
+        <div id="autoUpgrades"></div>
+    </div>
 
-    
-    const userAgent = navigator.userAgent.toLowerCase();
-const isMobile = /iphone|ipad|ipod|android|blackberry|windows phone/g.test(userAgent);
-const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/g.test(userAgent);
+    <div class="section" id="prestigeSection">
+        <h2>Prestige System</h2>
+        <p>Current Prestige Level: <span id="prestigeLevel">0</span></p>
+        <p>Next Prestige Bonus: <span id="nextPrestigeBonus">0</span>x</p>
+        <button id="prestigeButton" class="prestige-button">Prestige (Requires 1M points)</button>
+        <div id="prestigeUpgrades"></div>
+    </div>
 
-if ((isMobile && !isTablet) || isTablet) {
-    localStorage.setItem('banned', 'true');
-    location.replace('ban.html');
-}
-    if (localStorage.getItem('banned') === 'true') {
-        window.location.href = 'ban.html'
-    }
-    function reset() {
-            localStorage.setItem('Halloween', 'false');
-            localStorage.setItem('Dark', 'false');
-            localStorage.setItem('Christmas', 'false');
-            document.body.classList.remove('dark-mode');
-            document.body.classList.remove('halloween-mode');
-            document.body.classList.remove('christmas-mode');
-        }
+    <div class="section" id="achievementsSection">
+        <h2>Achievements</h2>
+        <div id="achievements"></div>
+    </div>
 
-        // Check and apply dark mode state from localStorage
-        if (localStorage.getItem('Dark') === 'true') {
-            document.body.classList.add('dark-mode');
-        }
+    <div class="section" id="buffsSection">
+        <h2>Active Buffs</h2>
+        <div id="activeBuffs"></div>
+    </div>
+</div>
 
-        // Check and apply Halloween mode state from localStorage
-        if (localStorage.getItem('Halloween') === 'true') {
-            document.body.classList.add('halloween-mode');
-        }
-        
-        if (localStorage.getItem('Christmas') === 'true') {
-            document.body.classList.add('christmas-mode');
-        }
+<div id="eventNotification" style="display: none;" class="event-notification"></div>
 
-        function dark() {
-            document.body.classList.remove('halloween-mode');
-            document.body.classList.remove('christmas-mode');
-            localStorage.setItem('Halloween', 'false');
-            localStorage.setItem('Christmas', 'false');
-            if (document.body.classList.contains('dark-mode')) {
-                document.body.classList.remove('dark-mode');
-                localStorage.setItem('Dark', 'false');
-            } else {
-                document.body.classList.add('dark-mode');
-                localStorage.setItem('Dark', 'true');
-            }
-        }
-
-        function halloween() {
-            /*document.body.classList.remove('dark-mode');
-            document.body.classList.remove('christmas-mode');
-            localStorage.setItem('Dark', 'false');
-            localStorage.setItem('Christmas', 'false');
-            if (document.body.classList.contains('halloween-mode')) {
-                document.body.classList.remove('halloween-mode');
-                localStorage.setItem('Halloween', 'false');
-            } else {
-                document.body.classList.add('halloween-mode');
-                localStorage.setItem('Halloween', 'true');
-            }*/
-        }
-        function christmas() {
-            document.body.classList.remove('dark-mode');
-            document.body.classList.remove('halloween-mode');
-            localStorage.setItem('Dark', 'false');
-            localStorage.setItem('Halloween', 'false');
-            if (document.body.classList.contains('christmas-mode')) {
-                document.body.classList.remove('christmas-mode');
-                localStorage.setItem('Christmas', 'false');
-            } else {
-                document.body.classList.add('christmas-mode');
-                localStorage.setItem('Christmas', 'true');
-            }
-        }
-    
-        let points = parseInt(localStorage.getItem('points')) || 0;
-        localStorage.setItem('gameStartTime', localStorage.getItem('gameStartTime') || Date.now());
-        let pointsPerClick = parseInt(localStorage.getItem('pointsPerClick')) || 1;
-        
-        const upgrades = [
-            { id: 'upgrade1', cost: 50, pointsToAdd: 1, owned: 0, baseCost: 50 },
-            { id: 'upgrade2', cost: 200, pointsToAdd: 3, owned: 0, baseCost: 200 },
-            { id: 'upgrade3', cost: 1000, pointsToAdd: 5, owned: 0, baseCost: 1000 },
-            { id: 'upgrade4', cost: 5000, pointsToAdd: 10, owned: 0, baseCost: 5000 },
-            { id: 'upgrade5', cost: 25000, pointsToAdd: 25, owned: 0, baseCost: 25000 },
-            { id: 'upgrade6', cost: 100000, pointsToAdd: 50, owned: 0, baseCost: 100000 }
-        ];
-        
-        // Add at the start of your <script> section, before any existing code
-const securityModule = {
-    originalValues: {
-        points: 0,
-        pointsPerClick: 1,
-        lastPoints: 0,
-        lastCheck: Date.now()
-    },
-    
-    initSecurity() {
-        this.startMonitoring();
-    },
-
-    startMonitoring() {
-        setInterval(() => {
-            this.checkGameState();
-            this.originalValues.lastPoints = points;
-            this.originalValues.lastCheck = Date.now();
-        }, 1000);
-    },
-
-    calculateMaxPossibleIncrease() {
-        const timeDiff = (Date.now() - this.originalValues.lastCheck) / 1000;
-        const maxClicksPerSecond = 20;
-        return timeDiff * maxClicksPerSecond * pointsPerClick * 2;
-    },
-
-    checkGameState() {
-        const pointsDiff = points - this.originalValues.lastPoints;
-        const maxIncrease = this.calculateMaxPossibleIncrease();
-        if (pointsDiff > maxIncrease && pointsDiff > 1000000) {
-            this.triggerBan();
-        }
-    },
-
-    triggerBan() {
-        localStorage.clear();
-        localStorage.setItem('banned', 'true');
-        location.href = 'ban.html';
-    }
+<button id="resetButton" style="margin-top: 20px; background-color: #ff4444; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Reset Game</button>
+<script>
+const gameState = {
+    points: 0,
+    pointsPerClick: 1,
+    prestigeTokens: 0,
+    prestigeLevel: 0,
+    achievementPoints: 0,
+    globalMultiplier: 1,
+    lastSaveTime: Date.now(),
+    activeBuffs: [],
+    unlockedAchievements: new Set()
 };
 
-// Initialize security after all other variables are declared
-securityModule.initSecurity();
+const upgrades = [
+    { id: 'click1', name: 'Better Clicks', cost: 15, pointsToAdd: 1, owned: 0, baseCost: 15, maxOwned: 50 },
+    { id: 'click2', name: 'Super Clicks', cost: 100, pointsToAdd: 5, owned: 0, baseCost: 100, maxOwned: 50 },
+    { id: 'click3', name: 'Mega Clicks', cost: 1000, pointsToAdd: 25, owned: 0, baseCost: 1000, maxOwned: 50 },
+    { id: 'click4', name: 'Ultra Clicks', cost: 10000, pointsToAdd: 125, owned: 0, baseCost: 10000, maxOwned: 50 },
+    { id: 'click5', name: 'Cosmic Clicks', cost: 100000, pointsToAdd: 625, owned: 0, baseCost: 100000, maxOwned: 50 }
+];
 
+const autoClickers = [
+    { id: 'auto1', name: 'Basic Bot', cost: 50, cps: 0.1, owned: 0, baseCost: 50, maxOwned: 50 },
+    { id: 'auto2', name: 'Advanced Bot', cost: 500, cps: 1, owned: 0, baseCost: 500, maxOwned: 50 },
+    { id: 'auto3', name: 'Super Bot', cost: 5000, cps: 10, owned: 0, baseCost: 5000, maxOwned: 50 },
+    { id: 'auto4', name: 'Mega Bot', cost: 50000, cps: 100, owned: 0, baseCost: 50000, maxOwned: 50 }
+];
 
+const prestigeUpgrades = [
+    { id: 'prestige1', name: 'Point Multiplier', cost: 1, multiplier: 1.5, owned: 0, maxOwned: 10 },
+    { id: 'prestige2', name: 'Auto-Click Booster', cost: 2, multiplier: 2, owned: 0, maxOwned: 10 },
+    { id: 'prestige3', name: 'Golden Clicks', cost: 5, multiplier: 3, owned: 0, maxOwned: 5 }
+];
 
+const achievements = [
+    { id: 'ach1', name: 'Beginner Clicker', description: 'Reach 1,000 points', requirement: () => gameState.points >= 1000 },
+    { id: 'ach2', name: 'Dedicated Clicker', description: 'Reach 1,000,000 points', requirement: () => gameState.points >= 1000000 },
+    { id: 'ach3', name: 'Upgrade Master', description: 'Own 50 total upgrades', requirement: () => upgrades.reduce((sum, u) => sum + u.owned, 0) >= 50 },
+    { id: 'ach4', name: 'Automation King', description: 'Own 50 total auto-clickers', requirement: () => autoClickers.reduce((sum, a) => sum + a.owned, 0) >= 50 },
+    { id: 'ach5', name: 'Prestige Pioneer', description: 'Prestige for the first time', requirement: () => gameState.prestigeLevel >= 1 }
+];
 
-        upgrades.forEach(upgrade => {
-            upgrade.owned = parseInt(localStorage.getItem(`${upgrade.id}_owned`)) || 0;
-            upgrade.cost = parseInt(localStorage.getItem(`${upgrade.id}_cost`)) || upgrade.baseCost;
-        });
-
-        pointsPerClick = 1;
-        upgrades.forEach(upg => {
-            pointsPerClick += upg.pointsToAdd * upg.owned;
-        });
-
-        const clickButton = document.getElementById('clickButton');
-        const pointsDisplay = document.getElementById('points');
-        const pointsPerClickDisplay = document.getElementById('pointsPerClick');
-
-        const upgradesDiv = document.getElementById('upgrades');
-        upgradesDiv.innerHTML = '<h2>Upgrades</h2>';
-        
-        upgrades.forEach(upgrade => {
-            const button = document.createElement('button');
-            button.className = 'upgrade';
-            button.id = upgrade.id;
-            button.innerHTML = `+${upgrade.pointsToAdd} Click Power (Cost: ${upgrade.cost}) [Owned: <span class="owned-${upgrade.id}">0</span>]`;
-            upgradesDiv.appendChild(button);
-
-            button.addEventListener('click', () => purchaseUpgrade(upgrade));
-        });
-
-        function purchaseUpgrade(upgrade) {
-            if (points >= upgrade.cost) {
-                points -= upgrade.cost;
-                upgrade.owned++;
-                pointsPerClick = 1;
-                
-                upgrades.forEach(upg => {
-                    pointsPerClick += upg.pointsToAdd * upg.owned;
-                });
-                
-                upgrade.cost = Math.floor(upgrade.baseCost * Math.pow(1.5, upgrade.owned));
-                
-                const button = document.getElementById(upgrade.id);
-                button.innerHTML = `+${upgrade.pointsToAdd} Click Power (Cost: ${upgrade.cost}) [Owned: <span class="owned-${upgrade.id}">${upgrade.owned}</span>]`;
-                
-                saveGame();
-                updateDisplay();
-            }
-        }
-
-        clickButton.addEventListener('click', () => {
-            points += pointsPerClick;
-            saveGame();
-            updateDisplay();
-        });
-
-        function saveGame() {
-            localStorage.setItem('points', points);
-            localStorage.setItem('pointsPerClick', pointsPerClick);
-            upgrades.forEach(upgrade => {
-                localStorage.setItem(`${upgrade.id}_owned`, upgrade.owned);
-                localStorage.setItem(`${upgrade.id}_cost`, upgrade.cost);
-            });
-        }
-
-        function updateDisplay() {
-            pointsDisplay.textContent = points.toLocaleString();
-            pointsPerClickDisplay.textContent = pointsPerClick.toLocaleString();
-            
-            upgrades.forEach(upgrade => {
-                const button = document.getElementById(upgrade.id);
-                button.disabled = points < upgrade.cost;
-                document.querySelector(`.owned-${upgrade.id}`).textContent = upgrade.owned;
-            });
-        }
-
-        const resetButton = document.getElementById('resetButton');
-        resetButton.addEventListener('click', () => {
-    // Store theme settings before clearing
-    const darkMode = localStorage.getItem('Dark');
-    const halloweenMode = localStorage.getItem('Halloween');
-    const christmasMode = localStorage.getItem('Christmas');
+const buffs = [
+    { id: 'buff1', name: 'Double Points', multiplier: 2, duration: 30000 },
+    { id: 'buff2', name: 'Triple Auto-Clicks', multiplier: 3, duration: 20000 },
+    { id: 'buff3', name: 'Golden Rush', multiplier: 5, duration: 10000 }
+];
+</script>
+<script>
+function calculatePoints() {
+    let basePoints = gameState.pointsPerClick;
+    let multiplier = gameState.globalMultiplier;
     
-    // Clear localStorage
-    localStorage.clear();
-    
-    // Restore theme settings
-    localStorage.setItem('Dark', darkMode);
-    localStorage.setItem('Halloween', halloweenMode);
-    localStorage.setItem('Christmas', christmasMode);
-    // Check and apply dark mode state from localStorage
-        if (localStorage.getItem('Dark') === 'true') {
-            document.body.classList.add('dark-mode');
-        }
-
-        // Check and apply Halloween mode state from localStorage
-        if (localStorage.getItem('Halloween') === 'true') {
-            document.body.classList.add('halloween-mode');
-        }
-        
-        if (localStorage.getItem('Christmas') === 'true') {
-            document.body.classList.add('christmas-mode');
-        }
-    
-    // Reset game variables
-    points = 0;
-    pointsPerClick = 1;
-    upgrades.forEach(upgrade => {
-        upgrade.owned = 0;
-        upgrade.cost = upgrade.baseCost;
+    gameState.activeBuffs.forEach(buff => {
+        multiplier *= buff.multiplier;
     });
     
-    // Update display and reload page
+    return basePoints * multiplier;
+}
+
+function addPoints(amount) {
+    gameState.points += amount;
     updateDisplay();
-    window.location.href = 'clicker.html';
-    alert("Reset!");
-});
+    checkAchievements();
+}
 
-
+function purchaseUpgrade(upgrade) {
+    if (gameState.points >= upgrade.cost && upgrade.owned < upgrade.maxOwned) {
+        gameState.points -= upgrade.cost;
+        upgrade.owned++;
+        upgrade.cost = Math.floor(upgrade.baseCost * Math.pow(1.15, upgrade.owned));
+        gameState.pointsPerClick += upgrade.pointsToAdd;
         updateDisplay();
-    </script>
+        saveGame();
+    }
+}
+
+function purchaseAutoClicker(autoClicker) {
+    if (gameState.points >= autoClicker.cost && autoClicker.owned < autoClicker.maxOwned) {
+        gameState.points -= autoClicker.cost;
+        autoClicker.owned++;
+        autoClicker.cost = Math.floor(autoClicker.baseCost * Math.pow(1.15, autoClicker.owned));
+        updateDisplay();
+        saveGame();
+    }
+}
+
+function prestige() {
+    if (gameState.points >= 1000000) {
+        const tokensToGain = Math.floor(Math.log10(gameState.points) - 5);
+        gameState.prestigeTokens += tokensToGain;
+        gameState.prestigeLevel++;
+        gameState.points = 0;
+        gameState.pointsPerClick = 1;
+        
+        upgrades.forEach(upgrade => {
+            upgrade.owned = 0;
+            upgrade.cost = upgrade.baseCost;
+        });
+        
+        autoClickers.forEach(autoClicker => {
+            autoClicker.owned = 0;
+            autoClicker.cost = autoClicker.baseCost;
+        });
+        
+        updateDisplay();
+        saveGame();
+        checkAchievements();
+    }
+}
+
+function triggerRandomEvent() {
+    // Roughly 0.1% chance every click (1 in 1000)
+    // With average clicking, this works out to approximately once per 30-40 minutes
+    if (Math.random() < 0.001) {
+        const randomBuff = buffs[Math.floor(Math.random() * buffs.length)];
+        activateBuff(randomBuff);
+    }
+}
+function activateBuff(buff) {
+    const activeBuff = { ...buff, endTime: Date.now() + buff.duration };
+    gameState.activeBuffs.push(activeBuff);
+    
+    showNotification(`${buff.name} activated for ${buff.duration / 1000} seconds!`);
+    
+    setTimeout(() => {
+        gameState.activeBuffs = gameState.activeBuffs.filter(b => b !== activeBuff);
+        updateDisplay();
+    }, buff.duration);
+    
+    updateDisplay();
+}
+
+function showNotification(message) {
+    const notification = document.getElementById('eventNotification');
+    notification.textContent = message;
+    notification.style.display = 'block';
+    
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 3000);
+}
+</script>
+<script>
+function updateDisplay() {
+    document.getElementById('points').textContent = Math.floor(gameState.points).toLocaleString();
+    document.getElementById('pointsPerClick').textContent = calculatePoints().toLocaleString();
+    document.getElementById('prestigeTokens').textContent = gameState.prestigeTokens.toLocaleString();
+    document.getElementById('prestigeLevel').textContent = gameState.prestigeLevel.toLocaleString();
+    document.getElementById('achievementPoints').textContent = gameState.achievementPoints.toLocaleString();
+    document.getElementById('globalMultiplier').textContent = gameState.globalMultiplier.toFixed(2);
+    
+    const autoClicksPerSecond = autoClickers.reduce((sum, ac) => sum + (ac.owned * ac.cps), 0);
+    document.getElementById('pointsPerSecond').textContent = (autoClicksPerSecond * calculatePoints()).toLocaleString();
+    
+    updateUpgradesDisplay();
+    updateAutoClickersDisplay();
+    updatePrestigeDisplay();
+    updateAchievementsDisplay();
+    updateBuffsDisplay();
+}
+
+function updateUpgradesDisplay() {
+    const upgradesDiv = document.getElementById('upgrades');
+    upgradesDiv.innerHTML = '';
+    
+    upgrades.forEach(upgrade => {
+        const button = document.createElement('button');
+        button.className = 'upgrade';
+        button.disabled = gameState.points < upgrade.cost || upgrade.owned >= upgrade.maxOwned;
+        button.innerHTML = `${upgrade.name}<br>Cost: ${upgrade.cost.toLocaleString()}<br>Owned: ${upgrade.owned}/${upgrade.maxOwned}`;
+        button.onclick = () => purchaseUpgrade(upgrade);
+        upgradesDiv.appendChild(button);
+    });
+}
+
+function updateAutoClickersDisplay() {
+    const autoClickersDiv = document.getElementById('autoUpgrades');
+    autoClickersDiv.innerHTML = '';
+    
+    autoClickers.forEach(autoClicker => {
+        const button = document.createElement('button');
+        button.className = 'upgrade';
+        button.disabled = gameState.points < autoClicker.cost || autoClicker.owned >= autoClicker.maxOwned;
+        button.innerHTML = `${autoClicker.name}<br>CPS: ${autoClicker.cps}<br>Cost: ${autoClicker.cost.toLocaleString()}<br>Owned: ${autoClicker.owned}/${autoClicker.maxOwned}`;
+        button.onclick = () => purchaseAutoClicker(autoClicker);
+        autoClickersDiv.appendChild(button);
+    });
+}
+
+function updatePrestigeDisplay() {
+    const prestigeDiv = document.getElementById('prestigeUpgrades');
+    prestigeDiv.innerHTML = '';
+    
+    prestigeUpgrades.forEach(upgrade => {
+        const button = document.createElement('button');
+        button.className = 'prestige-upgrade';
+        button.disabled = gameState.prestigeTokens < upgrade.cost || upgrade.owned >= upgrade.maxOwned;
+        button.innerHTML = `${upgrade.name}<br>Cost: ${upgrade.cost} tokens<br>Owned: ${upgrade.owned}/${upgrade.maxOwned}`;
+        button.onclick = () => purchasePrestigeUpgrade(upgrade);
+        prestigeDiv.appendChild(button);
+    });
+}
+
+function updateAchievementsDisplay() {
+    const achievementsDiv = document.getElementById('achievements');
+    achievementsDiv.innerHTML = '';
+    
+    achievements.forEach(achievement => {
+        const div = document.createElement('div');
+        div.className = `achievement ${gameState.unlockedAchievements.has(achievement.id) ? 'unlocked' : ''}`;
+        div.innerHTML = `${achievement.name}<br>${achievement.description}`;
+        achievementsDiv.appendChild(div);
+    });
+}
+
+function updateBuffsDisplay() {
+    const buffsDiv = document.getElementById('activeBuffs');
+    buffsDiv.innerHTML = '';
+    
+    gameState.activeBuffs.forEach(buff => {
+        const div = document.createElement('div');
+        div.className = 'buff-active';
+        const timeLeft = Math.ceil((buff.endTime - Date.now()) / 1000);
+        div.textContent = `${buff.name} (${timeLeft}s)`;
+        buffsDiv.appendChild(div);
+    });
+}
+
+function initializeGame() {
+    loadGame();
+    updateDisplay();
+    
+    document.getElementById('clickButton').onclick = () => {
+        addPoints(calculatePoints());
+        triggerRandomEvent();
+    };
+    
+    document.getElementById('prestigeButton').onclick = prestige;
+    
+    setInterval(() => {
+        const autoClickPoints = autoClickers.reduce((sum, ac) => sum + (ac.owned * ac.cps), 0) * calculatePoints();
+        addPoints(autoClickPoints / 10);
+    }, 100);
+    
+    setInterval(saveGame, 30000);
+    setInterval(checkAchievements, 1000);
+    setInterval(cleanupExpiredBuffs, 1000); // New interval for buff cleanup
+}
+</script>
+<script>
+function saveGame() {
+    const saveData = {
+        gameState: gameState,
+        upgrades: upgrades,
+        autoClickers: autoClickers,
+        prestigeUpgrades: prestigeUpgrades,
+        unlockedAchievements: Array.from(gameState.unlockedAchievements)
+    };
+    localStorage.setItem('clickerGameSave', JSON.stringify(saveData));
+}
+
+function cleanupExpiredBuffs() {
+    const currentTime = Date.now();
+    gameState.activeBuffs = gameState.activeBuffs.filter(buff => buff.endTime > currentTime);
+    updateDisplay();
+}
+
+function loadGame() {
+    const savedData = localStorage.getItem('clickerGameSave');
+    if (savedData) {
+        const save = JSON.parse(savedData);
+        Object.assign(gameState, save.gameState);
+        gameState.unlockedAchievements = new Set(save.unlockedAchievements);
+        
+        upgrades.forEach((upgrade, index) => {
+            upgrade.owned = save.upgrades[index].owned;
+            upgrade.cost = save.upgrades[index].cost;
+        });
+        
+        autoClickers.forEach((clicker, index) => {
+            clicker.owned = save.autoClickers[index].owned;
+            clicker.cost = save.autoClickers[index].cost;
+        });
+        
+        prestigeUpgrades.forEach((upgrade, index) => {
+            upgrade.owned = save.prestigeUpgrades[index].owned;
+        });
+        
+        calculateGlobalMultiplier();
+    }
+}
+
+function calculateGlobalMultiplier() {
+    let multiplier = 1;
+    prestigeUpgrades.forEach(upgrade => {
+        multiplier *= Math.pow(upgrade.multiplier, upgrade.owned);
+    });
+    multiplier *= (1 + gameState.prestigeLevel * 0.1);
+    gameState.globalMultiplier = multiplier;
+}
+
+function checkAchievements() {
+    achievements.forEach(achievement => {
+        if (!gameState.unlockedAchievements.has(achievement.id) && achievement.requirement()) {
+            gameState.unlockedAchievements.add(achievement.id);
+            gameState.achievementPoints += 1;
+            showNotification(`Achievement Unlocked: ${achievement.name}!`);
+            updateDisplay();
+        }
+    });
+}
+
+function purchasePrestigeUpgrade(upgrade) {
+    if (gameState.prestigeTokens >= upgrade.cost && upgrade.owned < upgrade.maxOwned) {
+        gameState.prestigeTokens -= upgrade.cost;
+        upgrade.owned++;
+        calculateGlobalMultiplier();
+        updateDisplay();
+        saveGame();
+    }
+}
+
+document.getElementById('resetButton').onclick = () => {
+    if (confirm('Are you sure you want to reset all progress?')) {
+        localStorage.removeItem('clickerGameSave');
+        location.reload();
+    }
+};
+</script>
+<script>
+    initializeGame();
+</script>
 </body>
 </html>

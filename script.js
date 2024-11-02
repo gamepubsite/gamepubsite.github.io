@@ -71,25 +71,16 @@ function reset() {
 let deviceID = localStorage.getItem('deviceID');
 let unbanned = false;
 
-// Check for empty device ID
-if (deviceID === '864dfa15016c4e36a66cb1e78c362b7f') {
-    localStorage.removeItem('banned'); // Clear all storage
-    unbanned = true;
-    alert('You are in the unban system.');
-    window.location.href = 'index.html'
-    localStorage.setItem('Unbanned', 'true');
-} else if (deviceID === '5c122a64-6edb-18d8-9fc5-60063acfe3ed') {
-    localStorage.removeItem('banned'); // Clear all storage
-    unbanned = true;
-    alert('You are in the unban system.');
-    window.location.href = 'index.html'
-    localStorage.setItem('Unbanned', 'true');
-} else if (deviceID === '5766e91ecc45e1914d137d27f81c3de2') {
-    localStorage.removeItem('banned'); // Clear all storage
-    unbanned = true;
-    alert('You are in the unban system.');
-    window.location.href = 'index.html'
-    localStorage.setItem('Unbanned', 'true');
+function unban() {
+    //if (deviceID === "") {
+        localStorage.removeItem('banned'); // Clear all storage
+        unbanned = true;
+        alert('Successfully unbanned!');
+        window.location.href = 'index.html'
+        localStorage.setItem('Unbanned', 'true');
+    /*} else {
+        alert("Your device ID is not unbanned.")
+    }*/
 }
 
 document.addEventListener('contextmenu', function(e) {
@@ -132,7 +123,7 @@ async function checkBanStatus(deviceID) {
         
         if (messageElement) {
             if (isBanned && !unbanned) {
-                messageElement.textContent = `You have been banned. Your DeviceID is ${deviceID}`;
+                messageElement.textContent = `You have been banned. Your DeviceID is ${deviceID}. Click the unban button if you were recently falsely banned.`;
                 localStorage.setItem('banned', 'true');
             } else {
                 messageElement.textContent = 'Welcome! Your account is in good standing.';

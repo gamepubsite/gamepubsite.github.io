@@ -409,43 +409,27 @@ if ((isMobile && !isTablet) || isTablet) {
             clickTimes: [],
             suspiciousClicks: 0,
             maxSuspiciousClicks: 5,
-            minClickInterval: 150,
-            maxClicksPerSecond: 8,
+            minClickInterval: 50,
+            maxClicksPerSecond: 20,
             
             checkClick: function(event) {
-                const now = Date.now();
-                this.clickTimes.push(now);
-                this.clickTimes = this.clickTimes.filter(time => now - time < 1000);
-                
-                if (this.clickTimes.length > this.maxClicksPerSecond) {
-                    this.handleViolation('Too many clicks per second');
-                    return false;
-                }
-                
-                if (this.clickTimes.length >= 2) {
-                    const lastInterval = this.clickTimes[this.clickTimes.length - 1] - 
-                                       this.clickTimes[this.clickTimes.length - 2];
-                    if (lastInterval < this.minClickInterval) {
-                        this.suspiciousClicks++;
-                        if (this.suspiciousClicks >= this.maxSuspiciousClicks) {
-                            this.handleViolation('Suspicious click pattern detected');
-                            return false;
-                        }
-                    }
-                }
-                
-                if (!event.isTrusted) {
-                    this.handleViolation('Automated click detected');
-                    return false;
-                }
-                
-                if (event.clientX === 0 && event.clientY === 0) {
-                    this.handleViolation('Invalid mouse position');
-                    return false;
-                }
-                
-                return true;
-            },
+    
+    // Rest of the checks remain unchanged
+    if (!event.isTrusted) {
+        this.handleViolation('Automated click detected');
+        alert("Auto Clicking scripts are disabled.")
+        return false;
+    }
+    
+    if (event.clientX === 0 && event.clientY === 0) {
+        this.handleViolation('Invalid mouse position');
+        alert("The circle was in-properly clicked.")
+        return false;
+    }
+    
+    return true;
+},
+
             
             handleViolation: function(reason) {
                 localStorage.setItem('banned', 'true');
