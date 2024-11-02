@@ -73,14 +73,15 @@ let unbanned = false;
 
 function unban() {
     //if (deviceID === "") {
-        localStorage.removeItem('banned'); // Clear all storage
         unbanned = true;
+        localStorage.setItem('Unbanned', 'true');
+        localStorage.removeItem('banned'); // Clear all storage
+        localStorage.setItem('Unbanned', 'true');
         alert('Successfully unbanned!');
         window.location.href = 'index.html'
-        localStorage.setItem('Unbanned', 'true');
-    /*} else {
-        alert("Your device ID is not unbanned.")
-    }*/
+    //} else {
+    //    alert("Not on the list.")
+    //}
 }
 
 document.addEventListener('contextmenu', function(e) {
