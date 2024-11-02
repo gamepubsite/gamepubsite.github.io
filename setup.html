@@ -7,6 +7,85 @@
     <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 1rem;
+            text-align: center;
+            background: linear-gradient(45deg, #2196F3, #4CAF50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #666;
+        }
+
+        .theme-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .buttons {
+            padding: 1rem;
+            font-size: 1.1em;
+            cursor: pointer;
+            background: white;
+            color: #333;
+            border-radius: 15px;
+            border: 2px solid #333;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            height: 100%;
+        }
+
+        .buttons:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .buttons1 {
+            padding: 0.8rem 1.5rem;
+            font-size: 1em;
+            cursor: pointer;
+            background: white;
+            color: #333;
+            border-radius: 25px;
+            border: 2px solid #333;
+            transition: all 0.3s ease;
+        }
+
+        .buttons1:hover {
+            background: #333;
+            color: white;
+        }
+
         body {
             font-family: Arial, sans-serif;
             transition: all 0.3s ease;
@@ -205,6 +284,10 @@
             border-radius: 15px; 
             border: 2px solid white;
         }
+        .christmas-mode h2 {
+            text-align: center;
+            color: red;
+        }
         /*start of context menu*/
         #context-menu {
     position: fixed;
@@ -295,7 +378,7 @@
     <h1>GamePub V2</h1>
     <button class="buttons1" onclick="dark()">Dark Mode</button>
     <button class="buttons1" onclick="christmas()">Christmas Mode</button>
-    <h2>V2.20: Clicker rewrite!!</h2>
+    <h2>V2.20.1: Main theme updated and clicker removed.</h2>
     <button class="buttons" onclick="toggleGame(1)">1. Number Game</button>
     <button class="buttons" onclick="toggleGame(2)">2. Rock Paper Scissors</button>
     <button class="buttons" onclick="toggleGame(3)">3. Tic Tac Toe</button>
@@ -304,7 +387,6 @@
     <div class="more-games"></div>
     <button class="buttons" onclick="toggleGame(6)">6. Wordle</button>
     <button class="buttons" onclick="toggleGame(7)">7. Circle Clicker</button>
-    <button class="buttons" onclick="selectGame(8)">8. Clicker</button>
     <div id="gameArea"></div>
     <div id="customAlert" class="alert">
         <p>There's already a game active, are you sure you'd like to continue with this action?</p>
@@ -480,8 +562,6 @@ if ((isMobile && !isTablet) || isTablet) {
                 Wordle();
             } else if (game === 7) {
                 Circle();
-            } else if (game === 8) {
-                Clicker();
             } else {
                 gameArea.innerHTML = 'This game is not in the options provided.';
             }
@@ -509,10 +589,6 @@ if ((isMobile && !isTablet) || isTablet) {
         
         function Circle() {
             window.location.href = 'circle.html'
-        }
-        
-        function Clicker() {
-            window.location.href = 'clicker.html'
         }
         
         function numberGame() {
