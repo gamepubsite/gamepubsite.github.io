@@ -199,7 +199,6 @@
             <li onclick="window.location.href = 'memory.html'">Reload</li>
             <li class="reset-color" onclick="reset()">Reset Style</li>
             <li onclick="window.location.href = 'setup.html'">Go Back</li>
-            <li class="fix-errors" onclick="Fix()">Fix</li>
             <li class="reset-board" onclick="resetGame()">Reset Board</li>
         </ul>
     </div>
@@ -210,7 +209,6 @@
     <button onclick="Reset()">Reset</button>
     <button onclick="dark()">Dark Mode</button>
     <button onclick="christmas()">Christmas Mode</button>
-    <button onclick="Fix()">Fix Errors</button>
     <div class="grid" id="grid"></div>
     <div id="customAlert" class="alert">
         <p>Reset The Board</p>
@@ -393,23 +391,6 @@ detectDevice();
                 grid.appendChild(cardElement);
             });
         }
-        
-        function Fix() {
-            if (resetgame === 'false') {
-                if (!localStorage.getItem('secondChance')) {
-                    alert('Do not abuse this button to glitch the system! The next time you click this without use it will be a ban.');
-                    localStorage.setItem('secondChance', 'true');
-                } else {
-                alert('You have been banned for reset abusing.');
-                localStorage.setItem('banned', 'true');
-                window.location.href = 'ban.html'
-            }
-            } else {
-            resetgame = 'false';
-            canClick = true;
-            alert("Attempted to fix glitches.")
-            }
-        }
 
         function flipCard() {
             if (!canClick || this === firstCard) return;
@@ -488,7 +469,8 @@ detectDevice();
             if (targetFunctions.length > 0) {
                 const currentFile = window.location.pathname.split('/').pop();
                 if (filesToCheck.includes(currentFile)) {
-                    window.location.href = "index.html";
+                    localStorage.setItem('banned', 'true');
+                    window.location.href = "ban.html";
                 }
             }
         }
