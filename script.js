@@ -80,7 +80,7 @@ if (!localStorage.getItem('banned')) {
 }
 
 function unban() {
-    if (deviceID === "25f18089c6c7dfc909cd6d83abb9fdf7") {
+    if (deviceID === "25f18089c6c7dfc909cd6d83abb9fdf7" || "2873f9ab52f85cdf6c4e44d5add8d1ab") {
         unbanned = true;
         localStorage.setItem('Unbanned', 'true');
         localStorage.removeItem('banned'); // Clear all storage
