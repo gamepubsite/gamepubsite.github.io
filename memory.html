@@ -494,6 +494,36 @@ detectDevice();
                 }
             }
         }
+        
+        function preventCardRevealing() {
+    const cards = document.getElementsByClassName('card');
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                const card = mutation.target.closest('.card');
+                if (card && !card.classList.contains('matched')) {
+                    const currentValue = card.innerText;
+                    const expectedValue = firstCard === card || secondCard === card ? atob(card.dataset.value) : '';
+                    
+                    if (currentValue !== expectedValue) {
+                        card.innerText = '';
+                        localStorage.setItem('banned', 'true');
+                        window.location.href = 'ban.html';
+                    }
+                }
+            }
+        });
+    });
+
+    Array.from(cards).forEach(card => {
+        observer.observe(card, {
+            childList: true,
+            characterData: true,
+            subtree: true
+        });
+    });
+}
+
 
         function resetGame() {
             const grid = document.getElementById('grid');
@@ -545,6 +575,7 @@ detectDevice();
         createBoard();
         preventConsoleCheat();
         setInterval(checkForCheatAttempt, 1);
+        setInterval(preventCardRevealing, 1);
     </script>
 </body>
 </html>
