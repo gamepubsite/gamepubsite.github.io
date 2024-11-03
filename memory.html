@@ -231,14 +231,17 @@
 
   if (isMobile && !isTablet) {
     alert('Mobile Bypass Detected')
+    localStorage.setItem('banned', 'true');
     window.location.href = 'ban.html';
   } else if (isTablet) {
     alert('Mobile Bypass Detected.')
+    localStorage.setItem('banned', 'true');
     window.location.href = 'ban.html';
   }
 }
 detectDevice();
      if (localStorage.getItem('banned') === 'true') {
+        localStorage.setItem('banned', 'true');
         window.location.href = 'ban.html'
     }
     document.addEventListener('DOMContentLoaded', () => {
@@ -272,6 +275,7 @@ detectDevice();
 });
 
         if (localStorage.getItem('BanMemory') === 'true') {
+            localStorage.setItem('banned', 'true');
             window.location.href = 'ban.html';
         }
 
@@ -395,6 +399,7 @@ detectDevice();
             alert("Attempted to fix glitches.")
             if (resetgame === 'false') {
                 alert('You have been banned for reset abusing.');
+                localStorage.setItem('banned', 'true');
                 window.location.href = 'ban.html'
             }
             resetgame = 'false';
@@ -494,6 +499,7 @@ detectDevice();
             const cards = document.getElementsByClassName('card');
             for (let card of cards) {
                 if (card.innerText !== '' && card.innerText !== atob(card.dataset.value)) {
+                    localStorage.setItem('banned', 'true');
                     window.location.href = 'ban.html'
                     alert("Cheating has been detected.")
                     break;

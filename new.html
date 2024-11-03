@@ -193,13 +193,13 @@ let firstPlayer = 'X';
   if (isMobile && !isTablet) {
       if (!localStorage.getItem('dev')) {
     alert('Mobile Bypass Detected')
-    localStorage.setItem('banned', 'true')
+    localStorage.setItem('banned', 'true');
     window.location.href = 'ban.html';
   }
   } else if (isTablet) {
     if (!localStorage.getItem('dev')) {
     alert('Mobile Bypass Detected.')
-    localStorage.setItem('banned', 'true')
+    localStorage.setItem('banned', 'true');
     window.location.href = 'ban.html';
     }
   } else {
@@ -210,7 +210,8 @@ let firstPlayer = 'X';
 }
 detectDevice();
      if (localStorage.getItem('banned') === 'true') {
-        window.location.href = 'index.html'
+         localStorage.setItem('banned', 'true');
+        window.location.href = 'ban.html'
     }
     document.addEventListener('DOMContentLoaded', () => {
     const contextMenu = document.getElementById('context-menu');

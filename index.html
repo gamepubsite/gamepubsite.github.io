@@ -8,6 +8,7 @@
 <body>
   <script>
   if (localStorage.getItem('banned') === 'true') {
+      localStorage.setItem('banned', 'true');
       window.location.href = 'ban.html'
   }
   

@@ -246,6 +246,7 @@ if ((isMobile && !isTablet) || isTablet) {
 }
     
     if (localStorage.getItem('banned') === 'true') {
+        localStorage.setItem('banned', 'true');
         window.location.href = 'ban.html'
     }
     
@@ -378,6 +379,7 @@ buttons.forEach(button => {
         // Check for minimum time between clicks
         if (currentTime - lastClickTime < MIN_CLICK_INTERVAL) {
             e.preventDefault();
+            localStorage.setItem('banned', 'true');
             window.location.href = 'ban.html'
             alert('Autoclicking is banned!');
             resetScore();
@@ -421,9 +423,9 @@ buttons.forEach(button => {
     button.addEventListener('click', (e) => {
         if (!e.isTrusted) {
             e.preventDefault();
+            localStorage.setItem('banned', 'true');
             window.location.href = 'ban.html'
             alert('Automated clicks are not allowed!');
-            alert('You are being banned for modifying your clicks!')
             resetScore();
             return;
         }

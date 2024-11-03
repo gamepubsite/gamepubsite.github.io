@@ -71,17 +71,25 @@ function reset() {
 let deviceID = localStorage.getItem('deviceID');
 let unbanned = false;
 
+if (!localStorage.getItem('banned')) {
+    unbanned = true;
+        localStorage.setItem('Unbanned', 'true');
+        localStorage.removeItem('banned'); // Clear all storage
+        localStorage.setItem('Unbanned', 'true');
+        window.location.href = 'index.html'
+}
+
 function unban() {
-    //if (deviceID === "") {
+    if (deviceID === "25f18089c6c7dfc909cd6d83abb9fdf7") {
         unbanned = true;
         localStorage.setItem('Unbanned', 'true');
         localStorage.removeItem('banned'); // Clear all storage
         localStorage.setItem('Unbanned', 'true');
         alert('Successfully unbanned!');
         window.location.href = 'index.html'
-    //} else {
-    //    alert("Not on the list.")
-    //}
+    } else {
+        alert("Not on the list.")
+    }
 }
 
 document.addEventListener('contextmenu', function(e) {
