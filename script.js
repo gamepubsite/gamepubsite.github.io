@@ -1,6 +1,6 @@
 'use strict';
 
-
+localStorage.removeItem('secondChance')
 
 function reset() {
             localStorage.setItem('Halloween', 'false');
