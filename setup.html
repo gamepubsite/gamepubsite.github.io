@@ -158,6 +158,39 @@
         .more-games {
             margin-top: 15px;
         }
+        .number-buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    max-width: 300px;
+    margin: 20px auto;
+}
+
+.numberButtons {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.numberButtons:hover {
+    background-color: #45a049;
+}
+
+.numberButtons:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+#result {
+    font-size: 18px;
+    margin-top: 20px;
+    font-weight: bold;
+}
         /* Dark mode styles */
         .dark-mode {
             background-color: black;
@@ -378,7 +411,7 @@
     <h1>GamePub V2</h1>
     <button class="buttons1" onclick="dark()">Dark Mode</button>
     <button class="buttons1" onclick="christmas()">Christmas Mode</button>
-    <h2>V2.21: Memory update (anti-cheat again.)</h2>
+    <h2>V2.21.1: Updated number game interface a little bit, fixed wordle dark mode keys.</h2>
     <button class="buttons" onclick="toggleGame(1)">1. Number Game</button>
     <button class="buttons" onclick="toggleGame(2)">2. Rock Paper Scissors</button>
     <button class="buttons" onclick="toggleGame(3)">3. Tic Tac Toe</button>
@@ -593,33 +626,49 @@ if ((isMobile && !isTablet) || isTablet) {
         }
         
         function numberGame() {
-            gameArea.innerHTML = `
-                <p>Try to guess the random number (1-10):</p>
-                <input type="number" id="guess" min="1" max="10">
-                <button onclick="checkNumber()">Submit</button>
-                <p id="result"></p>
-            `;
+    gameArea.innerHTML = `
+        <p>Number Game</p>
+        <p>Guess a number between 1 and 10:</p>
+        <div class="number-buttons">
+            <button class="numberButtons" onclick="guessNumber(1)">1</button>
+            <button class="numberButtons" onclick="guessNumber(2)">2</button>
+            <button class="numberButtons" onclick="guessNumber(3)">3</button>
+            <button class="numberButtons" onclick="guessNumber(4)">4</button>
+            <button class="numberButtons" onclick="guessNumber(5)">5</button>
+            <button class="numberButtons" onclick="guessNumber(6)">6</button>
+            <button class="numberButtons" onclick="guessNumber(7)">7</button>
+            <button class="numberButtons" onclick="guessNumber(8)">8</button>
+            <button class="numberButtons" onclick="guessNumber(9)">9</button>
+            <button class="numberButtons" onclick="guessNumber(10)">10</button>
+        </div>
+        <p id="result"></p>
+    `;
 
-            const randomNumber = Math.floor(Math.random() * 10) + 1;
+    const randomNumber = Math.floor(Math.random() * 10) + 1;
 
-            window.checkNumber = function() {
-                const guess = parseInt(document.getElementById('guess').value);
-                const result = document.getElementById('result');
-                if (guess === randomNumber) {
-                    gameArea.innerHTML = 'Correct!';
-                    currentGame = null;
-                    pendingGame = null;
-                } else if (guess > 10 || guess < 1) {
-                    gameArea.innerHTML = 'Invalid Number!';
-                    currentGame = null;
-                    pendingGame = null;
-                } else {
-                    gameArea.innerHTML = 'Incorrect!';
-                    currentGame = null;
-                    pendingGame = null;
-                }
-            };
+    window.guessNumber = function(guess) {
+        const result = document.getElementById('result');
+        
+        if (guess === randomNumber) {
+            result.textContent = `Correct! You won! 🎉 Please select the game again or choose a new game!`;
+            disableButtons();
+            currentGame = null;
+            pendingGame = null;
+        } else if (guess > randomNumber) {
+            result.textContent = `Too high! Try a lower number!`;
+        } else {
+            result.textContent = `Too low! Try a higher number!`;
         }
+    };
+
+    function disableButtons() {
+        const buttons = document.querySelectorAll('.numberButtons');
+        buttons.forEach(button => {
+            button.disabled = true;
+        });
+    }
+}
+
 
         function rockPaperScissors() {
             window.location.href = "rps.html"
