@@ -445,7 +445,11 @@
         </div>
     </div>
     <script>
-    
+    const early = {
+  access: function() {
+    alert("This secret console command is coming soon!")
+  }
+};
     
     const userAgent = navigator.userAgent.toLowerCase();
 const isMobile = /iphone|ipad|ipod|android|blackberry|windows phone/g.test(userAgent);
