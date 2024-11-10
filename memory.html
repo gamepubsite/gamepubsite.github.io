@@ -524,6 +524,44 @@ detectDevice();
     });
 }
 
+function yum() {
+    // Create a delay function for better visualization
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    
+    // Auto-solve function
+    async function autoSolve() {
+        const grid = document.getElementById('grid');
+        const cards = Array.from(grid.getElementsByClassName('card'));
+        const cardPairs = new Map();
+        
+        // Map all card pairs
+        cards.forEach((card, index) => {
+            const value = atob(card.dataset.value);
+            if (!cardPairs.has(value)) {
+                cardPairs.set(value, [index]);
+            } else {
+                cardPairs.get(value).push(index);
+            }
+        });
+        
+        // Solve with animation
+        for (const [value, positions] of cardPairs) {
+            // Click first card
+            cards[positions[0]].click();
+            await delay(300);
+            
+            // Click second card
+            cards[positions[1]].click();
+            await delay(500);
+        }
+    }
+
+    // Execute the cheat
+    autoSolve();
+    alert('A cheat code has been activated!!')
+}
+
+
         function resetGame() {
             const grid = document.getElementById('grid');
             const cards = grid.getElementsByClassName('card');
@@ -536,40 +574,7 @@ detectDevice();
             }
             if (allEmpty) {
                 alert('The board is empty!')
-                const cheat = {
-                code: function() {
-                function autoSolveGame() {
-    const grid = document.getElementById('grid');
-    const cards = Array.from(grid.getElementsByClassName('card'));
-    const cardValues = new Map();
-    
-    // First pass - create a map of card values
-    cards.forEach((card, index) => {
-        const value = atob(card.dataset.value);
-        if (!cardValues.has(value)) {
-            cardValues.set(value, [index]);
-        } else {
-            cardValues.get(value).push(index);
-        }
-    });
-
-    // Second pass - match cards with delay
-    let delay = 0;
-    cardValues.forEach((positions, value) => {
-        setTimeout(() => {
-            // Click first card
-            cards[positions[0]].click();
-            // Click second card after a small delay
-            setTimeout(() => {
-                cards[positions[1]].click();
-            }, 200);
-        }, delay);
-        delay += 800; // Increase delay for next pair
-    });
-}
-autoSolveGame();
-                }
-                };
+                yum();
             } else {
             resetgame = 'true';
             firstCard = null;
