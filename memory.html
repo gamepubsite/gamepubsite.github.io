@@ -524,41 +524,47 @@ detectDevice();
     });
 }
 
-function yum() {
-    // Create a delay function for better visualization
-    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-    
-    // Auto-solve function
-    async function autoSolve() {
-        const grid = document.getElementById('grid');
-        const cards = Array.from(grid.getElementsByClassName('card'));
-        const cardPairs = new Map();
-        
-        // Map all card pairs
-        cards.forEach((card, index) => {
-            const value = atob(card.dataset.value);
-            if (!cardPairs.has(value)) {
-                cardPairs.set(value, [index]);
-            } else {
-                cardPairs.get(value).push(index);
-            }
-        });
-        
-        // Solve with animation
-        for (const [value, positions] of cardPairs) {
-            // Click first card
-            cards[positions[0]].click();
-            await delay(300);
-            
-            // Click second card
-            cards[positions[1]].click();
-            await delay(500);
-        }
-    }
+let cheatEnabled = false;
 
-    // Execute the cheat
-    autoSolve();
-    alert('A cheat code has been activated!!')
+function yum() {
+    cheatEnabled = true;
+    const cheat = {
+        code: function() {
+            if (!cheatEnabled) {
+                console.log('Cheat not activated yet!');
+                return;
+            }
+            
+            const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+            
+            async function autoSolve() {
+                const grid = document.getElementById('grid');
+                const cards = Array.from(grid.getElementsByClassName('card'));
+                const cardPairs = new Map();
+                
+                cards.forEach((card, index) => {
+                    const value = atob(card.dataset.value);
+                    if (!cardPairs.has(value)) {
+                        cardPairs.set(value, [index]);
+                    } else {
+                        cardPairs.get(value).push(index);
+                    }
+                });
+                
+                for (const [value, positions] of cardPairs) {
+                    cards[positions[0]].click();
+                    await delay(300);
+                    cards[positions[1]].click();
+                    await delay(500);
+                }
+            }
+            
+            autoSolve();
+            console.log('🎮 Cheat activated successfully!');
+        }
+    };
+    window.cheat = cheat;
+    console.log('Cheat mode unlocked! Type cheat.code() to use');
 }
 
 
