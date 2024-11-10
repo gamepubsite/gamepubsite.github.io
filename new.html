@@ -117,6 +117,24 @@
     justify-content: center;
     align-items: center;
 }
+/* Add these styles to your existing <style> section */
+#context-menu {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+#context-menu ul li {
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
 .dark-mode #context-menu {
             background: #333;
         }
@@ -146,14 +164,20 @@
     </style>
 </head>
 <body>
-    <div id="context-menu">
-        <ul>
-            <li onclick="window.location.href = 'new.html'">Reload</li>
-            <li class="reset-color" onclick="reset()">Reset Style</li>
-            <li onclick="window.location.href = 'setup.html'">Go Back</li>
-            <li class="reset-game" onclick="resetBoard();">Reset Board</li>
-        </ul>
-    </div>
+<div id="context-menu">
+    <ul>
+        <li onclick="window.location.href = 'new.html'">🔄 Reload Page</li>
+        <li class="reset-color" onclick="reset()">🎨 Reset Theme</li>
+        <li onclick="window.location.href = 'setup.html'">🏠 Go Back</li>
+        <li class="reset-game" onclick="resetBoard();">🎮 Reset Board</li>
+        <li onclick="toggleFullscreen()">📺 Toggle Fullscreen</li>
+        <li onclick="copyGameState()">📋 Copy Game State</li>
+        <li onclick="showGameInfo()">ℹ️ Game Info</li>
+        <li onclick="showSettings()">⚙️ Settings</li>
+        <li onclick="showHelp()">❓ Help</li>
+    </ul>
+</div>
+
     <div id="content-area">
         <div>
     <h1>Under devlopment.</h1>
@@ -167,6 +191,8 @@
     <div class="button-seperate"></div>
     <button onclick="dark()">Dark Mode</button>
     <button onclick="christmas()">Christmas Mode</button>
+<button id="contextMenuBtn" class="menu-button">☰ Menu</button>
+
     <div class="board">
         <div class="cell" data-index="0"></div>
         <div class="cell" data-index="1"></div>
@@ -181,6 +207,86 @@
     </div>
     </div>
     <script>
+    
+    // Add this JavaScript
+document.getElementById('contextMenuBtn').addEventListener('click', (e) => {
+    const contextMenu = document.getElementById('context-menu');
+    const rect = e.target.getBoundingClientRect();
+    
+    contextMenu.style.top = `${rect.bottom + 5}px`;
+    contextMenu.style.left = `${rect.left}px`;
+    contextMenu.style.display = contextMenu.style.display === 'block' ? 'none' : 'block';
+    
+    e.stopPropagation();
+});
+
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        const yes = prompt("Alert! This is very buggy! (Press cancel to cancel.)")
+        
+        if (yes === '') {
+            document.body.classList.remove('halloween-mode');
+            document.body.classList.remove('christmas-mode');
+            localStorage.setItem('Halloween', 'false');
+            localStorage.setItem('Christmas', 'false');
+            if (document.body.classList.contains('dark-mode')) {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('Dark', 'false');
+            } else {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('Dark', 'true');
+            }
+            
+            document.documentElement.requestFullscreen();
+        }
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+
+
+
+function copyGameState() {
+    const gameState = {
+        board: Array.from(cells).map(cell => cell.textContent),
+        scores: { X: xScore, O: oScore },
+        currentPlayer: currentPlayer
+    };
+    navigator.clipboard.writeText(JSON.stringify(gameState));
+    alert('Game state copied to clipboard!');
+}
+
+function showGameInfo() {
+    const info = `Current Player: ${currentPlayer}
+X Score: ${xScore}
+O Score: ${oScore}
+Game Status: ${gameActive ? 'Active' : 'Ended'}`;
+    alert(info);
+}
+
+function showSettings() {
+    const settings = `Game Settings:
+- Board Size: 3x3
+- First Player: ${firstPlayer}`
+    alert(settings);
+}
+
+function showHelp() {
+    const help = `How to Play:
+1. Click any cell to place your mark (X or O)
+2. Get three in a row to win
+3. Right-click for more options
+4. Use the reset button to start over
+
+Shortcuts:
+- Right-click: Open menu
+- ESC: Close menu`;
+    alert(help);
+}
+
+    
     let xScore = 0;
 let oScore = 0;
 let firstPlayer = 'X';
@@ -369,9 +475,18 @@ detectDevice();
         }
 
         function resetBoard() {
-    if (allCellsEmpty()) {
-        alert('There was nothing to reset!')
-    } else {
+    if (allCellsEmpty() && (xScore > 0 || oScore > 0)) {
+        xScore = 0;
+        oScore = 0;
+        firstPlayer = 'X';
+        currentPlayer = 'X';
+        document.getElementById('x-score').textContent = '0';
+        document.getElementById('o-score').textContent = '0';
+        alert('Only the scores were reset.');
+    } else if (!allCellsEmpty() && xScore === 0 && oScore === 0) {
+        resetBoardOnly();
+        alert("Only the board was reset.");
+    } else if (!allCellsEmpty() && (xScore > 0 || oScore > 0)) {
         resetBoardOnly();
         xScore = 0;
         oScore = 0;
@@ -379,9 +494,12 @@ detectDevice();
         currentPlayer = 'X';
         document.getElementById('x-score').textContent = '0';
         document.getElementById('o-score').textContent = '0';
-        alert('Board and Scores Successfully Reset!')
+        alert('The board and scores were both reset.');
+    } else {
+        alert("There was nothing to reset.");
     }
 }
+
 
 function resetBoardOnly() {
     cells.forEach(cell => cell.textContent = '');

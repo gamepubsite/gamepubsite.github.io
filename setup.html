@@ -34,6 +34,19 @@
         h2 {
             text-align: center;
             color: #666;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .featured {
+            padding: 10px 20px; 
+            font-size: 1em; 
+            cursor: pointer; 
+            background: black; 
+            color: yellow; 
+            border-radius: 15px; 
+            border: 2px solid yellow;
+            margin-left: 5em;
         }
 
         .theme-controls {
@@ -409,15 +422,16 @@
     <div id="content-area">
         <div>
     <h1>GamePub V2</h1>
+    <h2>Featured game of this week: </h2>
     <button class="buttons1" onclick="dark()">Dark Mode</button>
     <button class="buttons1" onclick="christmas()">Christmas Mode</button>
-    <h2>V2.21.1: Updated number game interface a little bit, fixed wordle dark mode keys.</h2>
+    <button class="featured" onclick="toggleGame(3)">3. Tic Tac Toe (FEATURED)</button>
+    <h2>V2.22: Revamped tic tac toe a little. Added a new feature: Featured games.</h2>
+    <button class="buttons" onclick="selectGame(0)">0. Random Number</button>
     <button class="buttons" onclick="toggleGame(1)">1. Number Game</button>
     <button class="buttons" onclick="toggleGame(2)">2. Rock Paper Scissors</button>
-    <button class="buttons" onclick="toggleGame(3)">3. Tic Tac Toe</button>
     <button class="buttons" onclick="toggleGame(4)">4. Memory Matching</button>
     <button class="buttons" onclick="toggleGame(5)">5. Invaders</button>
-    <div class="more-games"></div>
     <button class="buttons" onclick="toggleGame(6)">6. Wordle</button>
     <button class="buttons" onclick="toggleGame(7)">7. Circle Clicker</button>
     <div id="gameArea"></div>
@@ -584,6 +598,10 @@ if ((isMobile && !isTablet) || isTablet) {
         function selectGame(game) {
             if (game === 1) {
                 numberGame();
+            } else if (game === 0) {
+                currentGame = game;
+                pendingGame = null;
+                random();
             } else if (game === 2) {
                 rockPaperScissors();
             } else if (game === 3) {
@@ -597,7 +615,7 @@ if ((isMobile && !isTablet) || isTablet) {
             } else if (game === 7) {
                 Circle();
             } else {
-                gameArea.innerHTML = 'This game is not in the options provided.';
+                gameArea.innerHTML = 'This game is yet made.';
             }
         }
 
@@ -624,6 +642,16 @@ if ((isMobile && !isTablet) || isTablet) {
         function Circle() {
             window.location.href = 'circle.html'
         }
+        
+        function random() {
+    const min = parseInt(prompt("Enter the minimum number:"));
+    const max = parseInt(prompt("Enter the maximum number:"));
+    
+    const randoNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+    
+    gameArea.innerHTML = `Here's your random number between ${min} and ${max}: ${randoNumber}`;
+}
+
         
         function numberGame() {
     gameArea.innerHTML = `
