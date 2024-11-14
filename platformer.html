@@ -91,6 +91,44 @@
 
     <script>
     
+    const SCALE_FACTOR = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+
+// Canvas setup
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+    // Add these variables at the top of your script
+const BASE_WIDTH = 1920; // Base width for scaling
+const BASE_HEIGHT = 1080; // Base height for scaling
+let scaleX = 1;
+let scaleY = 1;
+
+function handleResize() {
+    canvas.width = window.innerWidth - 20;
+    canvas.height = window.innerHeight - 100;
+    
+    // Update game elements based on new scale
+    player.width = 30 * SCALE_FACTOR;
+    player.height = 30 * SCALE_FACTOR;
+    player.speed = 5 * SCALE_FACTOR;
+    
+    // Update level configuration
+    levelConfig.platformWidth.min = 120 * SCALE_FACTOR;
+    levelConfig.platformWidth.max = 200 * SCALE_FACTOR;
+    levelConfig.platformGap.min = 60 * SCALE_FACTOR;
+    levelConfig.platformGap.max = 150 * SCALE_FACTOR;
+    levelConfig.platformHeight.min = 20 * SCALE_FACTOR;
+    levelConfig.platformHeight.max = 40 * SCALE_FACTOR;
+    levelConfig.maxJumpHeight = 150 * SCALE_FACTOR;
+    levelConfig.jumpPadBoost = -20 * SCALE_FACTOR;
+    
+    generateNewLevel(levelSeed);
+}
+
+window.addEventListener('resize', handleResize);
+
+
+    
     let currentLevel = 0;
 let levelSeed = 0;
 
@@ -107,15 +145,12 @@ ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
     
     switch(data.type) {
-        case 'init':
-            playerId = data.id;
-            currentLevel = data.currentLevel;
-            levelSeed = data.levelSeed;
-            generateNewLevel(levelSeed);
-            spawnPlayerOnPlatform();
-            data.players.forEach(p => {
-                if (p.id !== playerId) {
-                    otherPlayers.set(p.id, p);
+        case 'positions':
+            data.players.forEach(([id, pos]) => {
+                if (id !== playerId) {
+                    pos.x = pos.x / SCALE_FACTOR;
+                    pos.y = pos.y / SCALE_FACTOR;
+                    otherPlayers.set(id, pos);
                 }
             });
             break;
@@ -125,14 +160,6 @@ ws.onmessage = (event) => {
             levelSeed = data.seed;
             generateNewLevel(levelSeed);
             spawnPlayerOnPlatform();
-            break;
-            
-        case 'positions':
-            data.players.forEach(([id, pos]) => {
-                if (id !== playerId) {
-                    otherPlayers.set(id, pos);
-                }
-            });
             break;
             
         case 'playerLeft':
@@ -149,9 +176,6 @@ ws.onerror = (error) => {
 ws.onclose = () => {
     console.log('Disconnected from game server');
 };
-    
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
 
     canvas.width = window.innerWidth - 20;
     canvas.height = window.innerHeight - 100;
@@ -426,43 +450,45 @@ let currentWall = null;
 
 // Modified handleWallCollisions function
 function handleWallCollisions() {
-    if (!currentWall) {
-        obstacles.forEach(obstacle => {
-            if (obstacle.type === gameObjects.WALL && checkCollision(player, obstacle)) {
-                currentWall = obstacle;
+    let isCollidingWithWall = false;
+    
+    obstacles.forEach(obstacle => {
+        if (obstacle.type === gameObjects.WALL && checkCollision(player, obstacle)) {
+            isCollidingWithWall = true;
+            const playerRight = player.x * SCALE_FACTOR + player.width;
+            const playerLeft = player.x * SCALE_FACTOR;
+            const wallRight = obstacle.x * SCALE_FACTOR + obstacle.width;
+            const wallLeft = obstacle.x * SCALE_FACTOR;
+            
+            // Allow sliding along walls
+            if (playerRight > wallLeft && player.velX > 0) {
+                player.x = (wallLeft - player.width) / SCALE_FACTOR;
+                player.velX = 0;
+                player.wallSliding = true;
+                player.velY = Math.min(player.velY, 2 * SCALE_FACTOR);
+            } else if (playerLeft < wallRight && player.velX < 0) {
+                player.x = wallRight / SCALE_FACTOR;
+                player.velX = 0;
+                player.wallSliding = true;
+                player.velY = Math.min(player.velY, 2 * SCALE_FACTOR);
             }
-        });
-    }
-
-    if (currentWall && checkCollision(player, currentWall)) {
-        const playerRight = player.x + player.width;
-        const playerLeft = player.x;
-        const wallRight = currentWall.x + currentWall.width;
-        const wallLeft = currentWall.x;
-        
-        if (keys.right && playerRight >= wallLeft) {
-            player.x = wallLeft - player.width;
-            player.wallSliding = true;
-            player.velY = Math.min(player.velY, 2);
-        } else if (keys.left && playerLeft <= wallRight) {
-            player.x = wallRight;
-            player.wallSliding = true;
-            player.velY = Math.min(player.velY, 2);
         }
-    } else {
-        currentWall = null;
+    });
+
+    if (!isCollidingWithWall) {
         player.wallSliding = false;
     }
 }
 
 
 
+
     function checkCollision(obj1, obj2) {
-        return obj1.x < obj2.x + obj2.width &&
-               obj1.x + obj1.width > obj2.x &&
-               obj1.y < obj2.y + obj2.height &&
-               obj1.y + obj1.height > obj2.y;
-    }
+    return (obj1.x * SCALE_FACTOR) < (obj2.x * SCALE_FACTOR + obj2.width) &&
+           (obj1.x * SCALE_FACTOR + obj1.width) > (obj2.x * SCALE_FACTOR) &&
+           (obj1.y * SCALE_FACTOR) < (obj2.y * SCALE_FACTOR + obj2.height) &&
+           (obj1.y * SCALE_FACTOR + obj1.height) > (obj2.y * SCALE_FACTOR);
+}
 
     function playerDeath() {
         player.alive = false;
@@ -476,28 +502,13 @@ function handleWallCollisions() {
 function update() {
     if (!player.alive) return;
     
-    // Add this check for falling off the bottom
-    if (player.y + player.height > canvas.height) {
-        playerDeath();
-        return;
-    }
-
-    // Add this check for reaching the right side
-    if (player.x + player.width > canvas.width - 50) {
-        ws.send(JSON.stringify({
-            type: 'levelComplete',
-            currentLevel: currentLevel
-        }));
-        return;
-    }
-
-
+    const gravity = 0.5 * SCALE_FACTOR;
     const prevX = player.x;
     const prevY = player.y;
 
     // Apply gravity if not wall sliding
     if (!player.wallSliding) {
-        player.velY += 0.5;
+        player.velY += gravity;
     }
 
     // Handle wall sliding
@@ -505,39 +516,23 @@ function update() {
 
     // Regular movement when not wall sliding
     if (!player.wallSliding) {
-        if (keys.left) player.velX = -player.speed;
-        if (keys.right) player.velX = player.speed;
+        if (keys.left) player.velX = -player.speed * SCALE_FACTOR;
+        if (keys.right) player.velX = player.speed * SCALE_FACTOR;
         
-        player.x += player.velX;
-        player.y += player.velY;
+        player.x += player.velX / SCALE_FACTOR;
+        player.y += player.velY / SCALE_FACTOR;
     }
 
     // Wall jump mechanics
     if (player.wallSliding && keys.up && player.wallJumpCooldown <= 0) {
-        player.velY = -12;
-        player.velX = keys.right ? -15 : 15;
+        player.velY = -12 * SCALE_FACTOR;
+        player.velX = (keys.right ? -15 : 15) * SCALE_FACTOR;
         player.wallJumpCooldown = 15;
         player.wallJumping = true;
         player.jumping = true;
         player.wallSliding = false;
     }
 
-    // Regular movement and physics
-    if (!player.wallSliding) {
-        player.velY += 0.5;
-        
-        if (player.wallJumping) {
-            if (keys.left) player.velX += 0.5;
-            if (keys.right) player.velX -= 0.5;
-        } else {
-            if (keys.left) player.velX = -player.speed;
-            if (keys.right) player.velX = player.speed;
-        }
-        
-        player.x += player.velX;
-        player.y += player.velY;
-    }
-    
     // Handle wall collisions
     handleWallCollisions();
     
@@ -547,10 +542,11 @@ function update() {
     
     player.velX *= player.wallJumping ? 0.95 : 0.8;
     
-    if (Math.abs(player.velX) < 0.5) {
+    if (Math.abs(player.velX) < 0.5 * SCALE_FACTOR) {
         player.wallJumping = false;
     }
 
+    // Check for obstacle collisions
     obstacles.forEach(obstacle => {
         if (checkCollision(player, obstacle)) {
             switch(obstacle.type) {
@@ -558,7 +554,7 @@ function update() {
                     playerDeath();
                     break;
                 case gameObjects.JUMPPAD:
-                    player.velY = levelConfig.jumpPadBoost;
+                    player.velY = levelConfig.jumpPadBoost * SCALE_FACTOR;
                     player.jumpBoostActive = true;
                     setTimeout(() => player.jumpBoostActive = false, 1000);
                     break;
@@ -566,133 +562,176 @@ function update() {
         }
     });
 
+    // Platform collision detection
     let onPlatform = false;
     platforms.forEach(platform => {
-        if (player.x + player.width > platform.x + 5 && 
-            player.x < platform.x + platform.width - 5) {
-            if (player.y + player.height > platform.y && 
-                prevY + player.height <= platform.y + 10) {
-                player.y = platform.y - player.height;
+        if ((player.x * SCALE_FACTOR + player.width) > (platform.x * SCALE_FACTOR + 5) && 
+            (player.x * SCALE_FACTOR) < (platform.x * SCALE_FACTOR + platform.width * SCALE_FACTOR - 5)) {
+            if ((player.y * SCALE_FACTOR + player.height) > (platform.y * SCALE_FACTOR) && 
+                (prevY * SCALE_FACTOR + player.height) <= (platform.y * SCALE_FACTOR + 10)) {
+                player.y = (platform.y * SCALE_FACTOR - player.height) / SCALE_FACTOR;
                 player.velY = 0;
                 player.jumping = false;
                 onPlatform = true;
                 player.wallJumping = false;
             }
-            if (player.y < platform.y + platform.height && 
-                prevY >= platform.y + platform.height - 10) {
-                player.y = platform.y + platform.height;
-                player.velY = 0;
-            }
         }
     });
 
+    // Boundary checks
     if (player.x < 0) player.x = 0;
-    if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+    // if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
     
+    // Death check
+    if (player.y + player.height > canvas.height) {
+        playerDeath();
+        return;
+    }
 
+    // Level completion check
+    if ((player.x * SCALE_FACTOR + player.width) >= (canvas.width - 10)) {
+    ws.send(JSON.stringify({
+        type: 'levelComplete',
+        currentLevel: currentLevel
+    }));
+    return;
+}
+
+    // Update jumping state
     if (!onPlatform && !player.jumping && player.velY > 0) {
         player.jumping = true;
     }
+
+    // Send position update to server
     if (ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({
-        type: 'update',
-        x: player.x,
-        y: player.y,
-        width: player.width,
-        height: player.height,
-        jumping: player.jumping,
-        wallSliding: player.wallSliding,
-        jumpBoostActive: player.jumpBoostActive
-    }));
+        ws.send(JSON.stringify({
+            type: 'update',
+            x: player.x,
+            y: player.y,
+            width: player.width,
+            height: player.height,
+            jumping: player.jumping,
+            wallSliding: player.wallSliding,
+            jumpBoostActive: player.jumpBoostActive
+        }));
+    }
 }
-}
+
 
 
 
     function draw() {
-        ctx.fillStyle = '#000435';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
-        for (let i = 0; i < canvas.width; i += 30) {
+    ctx.fillStyle = '#000435';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw grid with scaling
+    ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+    for (let i = 0; i < canvas.width; i += 30 * SCALE_FACTOR) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, canvas.height);
+        ctx.stroke();
+    }
+    
+    // Draw platforms with scaling
+    platforms.forEach(platform => {
+        ctx.fillStyle = platform.isEndPlatform ? '#00ff00' : '#00ffff';
+        ctx.shadowColor = platform.isEndPlatform ? '#00ff00' : '#00ffff';
+        ctx.fillRect(
+            platform.x * SCALE_FACTOR,
+            platform.y * SCALE_FACTOR,
+            platform.width * SCALE_FACTOR,
+            platform.height * SCALE_FACTOR
+        );
+    });
+    
+    // Draw obstacles with scaling
+    obstacles.forEach(obstacle => {
+    switch(obstacle.type) {
+        case gameObjects.SPIKE:
             ctx.beginPath();
-            ctx.moveTo(i, 0);
-            ctx.lineTo(i, canvas.height);
-            ctx.stroke();
-        }
-        for (let i = 0; i < canvas.height; i += 30) {
-            ctx.beginPath();
-            ctx.moveTo(0, i);
-            ctx.lineTo(canvas.width, i);
-            ctx.stroke();
-        }
-
-        platforms.forEach(platform => {
-            if (platform.isEndPlatform) {
-                ctx.fillStyle = '#00ff00';
-                ctx.shadowColor = '#00ff00';
-            } else {
-                ctx.fillStyle = '#00ffff';
-                ctx.shadowColor = '#00ffff';
-            }
-            ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
-        });
-
-        obstacles.forEach(obstacle => {
-            switch(obstacle.type) {
-                case gameObjects.SPIKE:
-                    ctx.beginPath();
-                    ctx.moveTo(obstacle.x, obstacle.y + obstacle.height);
-                    ctx.lineTo(obstacle.x + obstacle.width/2, obstacle.y);
-                    ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height);
-                    ctx.fillStyle = '#ff0000';
-                    ctx.fill();
-                    break;
-                case gameObjects.JUMPPAD:
-                    ctx.fillStyle = '#00ff00';
-                    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-                    break;
-                case gameObjects.WALL:
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-                    break;
-            }
-        });
+            ctx.moveTo(
+                obstacle.x * SCALE_FACTOR,
+                (obstacle.y + obstacle.height) * SCALE_FACTOR
+            );
+            ctx.lineTo(
+                (obstacle.x + obstacle.width/2) * SCALE_FACTOR,
+                obstacle.y * SCALE_FACTOR
+            );
+            ctx.lineTo(
+                (obstacle.x + obstacle.width) * SCALE_FACTOR,
+                (obstacle.y + obstacle.height) * SCALE_FACTOR
+            );
+            ctx.fillStyle = '#ff0000';
+            ctx.fill();
+            break;
+        case gameObjects.JUMPPAD:
+            ctx.fillStyle = '#00ff00';
+            ctx.fillRect(
+                obstacle.x * SCALE_FACTOR,
+                obstacle.y * SCALE_FACTOR,
+                obstacle.width * SCALE_FACTOR,
+                obstacle.height * SCALE_FACTOR
+            );
+            break;
+        case gameObjects.WALL:
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(
+                obstacle.x * SCALE_FACTOR,
+                obstacle.y * SCALE_FACTOR,
+                obstacle.width * SCALE_FACTOR,
+                obstacle.height * SCALE_FACTOR
+            );
+            break;
+    }
+});
 
         if (player.alive) {
-            ctx.shadowColor = player.jumpBoostActive ? '#00ff00' : '#00ffff';
-            ctx.shadowBlur = 20;
-            ctx.fillStyle = player.jumpBoostActive ? '#00ff00' : '#00ffff';
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-            ctx.shadowBlur = 0;
-        }
+    ctx.shadowColor = player.jumpBoostActive ? '#00ff00' : '#00ffff';
+    ctx.shadowBlur = 20;
+    ctx.fillStyle = player.jumpBoostActive ? '#00ff00' : '#00ffff';
+    ctx.fillRect(
+        player.x * SCALE_FACTOR,
+        player.y * SCALE_FACTOR,
+        player.width * SCALE_FACTOR,
+        player.height * SCALE_FACTOR
+    );
+    ctx.shadowBlur = 0;
+}
 
         if (player.wallSliding) {
             ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
             ctx.fillRect(player.x - 5, player.y, 5, player.height);
         }
         otherPlayers.forEach((p, id) => {
-    ctx.shadowColor = p.jumpBoostActive ? '#ff00ff' : '#ff6600';
-    ctx.shadowBlur = 20;
-    ctx.fillStyle = p.jumpBoostActive ? '#ff00ff' : '#ff6600';
-    ctx.fillRect(p.x, p.y, p.width, p.height);
-    ctx.shadowBlur = 0;
+        ctx.shadowColor = p.jumpBoostActive ? '#ff00ff' : '#ff6600';
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = p.jumpBoostActive ? '#ff00ff' : '#ff6600';
+        ctx.fillRect(
+            p.x * SCALE_FACTOR,
+            p.y * SCALE_FACTOR,
+            player.width,
+            player.height
+        );
+        ctx.shadowBlur = 0;
 
-    if (p.wallSliding) {
-        ctx.fillStyle = 'rgba(255, 102, 0, 0.3)';
-        ctx.fillRect(p.x - 5, p.y, 5, p.height);
-    }
-});
-    }
+        if (p.wallSliding) {
+            ctx.fillStyle = 'rgba(255, 102, 0, 0.3)';
+            ctx.fillRect(p.x - 5, p.y, 5, p.height);
+        }
+    });
+}
 
     function gameLoop() {
-        update();
-        draw();
-        requestAnimationFrame(gameLoop);
-    }
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
 
-    gameLoop();
-    spawnPlayerOnPlatform();
+window.addEventListener('resize', handleResize);
+handleResize();
+gameLoop();
+spawnPlayerOnPlatform();
 </script>
 </body>
 </html>
