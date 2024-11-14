@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quantum Platformer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #gameCanvas {
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 20px #00ffff;
+        }
+
+        .movement-controls {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    gap: 20px;
+}
+
+.jump-control {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+}
+
+.control-btn {
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 255, 255, 0.1);
+    border: 2px solid #00ffff;
+    border-radius: 50%;
+    color: #00ffff;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
+            border-radius: 50%;
+            color: #00ffff;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px #00ffff;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div class="movement-controls">
+    <div class="control-btn" id="leftBtn">←</div>
+    <div class="control-btn" id="rightBtn">→</div>
+</div>
+<div class="jump-control">
+    <div class="control-btn" id="jumpBtn">↑</div>
+</div>
+    <button class="back-btn" onclick="window.location.href='game.html'">Back</button>
+
+    <script>
+    
+    let currentLevel = 0;
+let levelSeed = 0;
+
+    
+    const otherPlayers = new Map();
+let playerId = null;
+const ws = new WebSocket('wss://complex-caring-nation.glitch.me');
+
+ws.onopen = () => {
+    console.log('Connected to game server');
+};
+
+ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    
+    switch(data.type) {
+        case 'init':
+            playerId = data.id;
+            currentLevel = data.currentLevel;
+            levelSeed = data.levelSeed;
+            generateNewLevel(levelSeed);
+            spawnPlayerOnPlatform();
+            data.players.forEach(p => {
+                if (p.id !== playerId) {
+                    otherPlayers.set(p.id, p);
+                }
+            });
+            break;
+            
+        case 'newLevel':
+            currentLevel = data.level;
+            levelSeed = data.seed;
+            generateNewLevel(levelSeed);
+            spawnPlayerOnPlatform();
+            break;
+            
+        case 'positions':
+            data.players.forEach(([id, pos]) => {
+                if (id !== playerId) {
+                    otherPlayers.set(id, pos);
+                }
+            });
+            break;
+            
+        case 'playerLeft':
+            otherPlayers.delete(data.id);
+            break;
+    }
+};
+
+
+ws.onerror = (error) => {
+    console.log('WebSocket error:', error);
+};
+
+ws.onclose = () => {
+    console.log('Disconnected from game server');
+};
+    
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth - 20;
+    canvas.height = window.innerHeight - 100;
+
+    const gameObjects = {
+        SPIKE: 'spike',
+        JUMPPAD: 'jumppad',
+        WALL: 'wall'
+    };
+    
+
+    const player = {
+        x: 50,
+        y: canvas.height - 50,
+        width: 30,
+        height: 30,
+        speed: 5,
+        velY: 0,
+        velX: 0,
+        jumping: false,
+        wallJumping: false,
+        wallSliding: false,
+        wallJumpCooldown: 0,
+        alive: true,
+        respawnX: 50,
+        respawnY: canvas.height - 50,
+        jumpBoostActive: false
+    };
+
+    const levelConfig = {
+    currentLevel: 0,
+    platformWidth: { min: 120, max: 200 },
+    platformGap: { min: 60, max: 150 },
+    platformHeight: { min: 20, max: 40 },
+    maxJumpHeight: 150,
+    minPlatformY: canvas.height - 300,
+    verticalVariation: { min: -50, max: 50 },
+    jumpPadBoost: -20,
+    patterns: [
+        {
+            name: 'basic',
+            objects: ['platform', 'platform', 'jumppad'],
+            spacing: 200
+        },
+        {
+            name: 'challenge',
+            objects: ['platform', 'spike', 'wall', 'platform'],
+            spacing: 300
+        }
+    ]
+};
+
+
+    let platforms = [];
+    let obstacles = [];
+    const gameState = generateLevelSegment(0);
+    platforms = gameState.platforms;
+    obstacles = gameState.obstacles;
+
+    let keys = {
+        left: false,
+        right: false,
+        up: false
+    };
+        // Mobile controls
+    const leftBtn = document.getElementById('leftBtn');
+    const rightBtn = document.getElementById('rightBtn');
+    const jumpBtn = document.getElementById('jumpBtn');
+
+    [leftBtn, rightBtn, jumpBtn].forEach(btn => {
+        btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+    });
+
+    leftBtn.ontouchstart = () => keys.left = true;
+    leftBtn.ontouchend = () => keys.left = false;
+    rightBtn.ontouchstart = () => keys.right = true;
+    rightBtn.ontouchend = () => keys.right = false;
+    jumpBtn.ontouchstart = () => {
+        keys.up = true;
+        if (!player.jumping) {
+            player.velY = -12;
+            player.jumping = true;
+        }
+    };
+    jumpBtn.ontouchend = () => keys.up = false;
+    
+    // Add to your existing key listeners
+// Update the keydown event listener
+document.addEventListener('keydown', (e) => {
+    switch(e.key.toLowerCase()) {
+        case 'a':
+        case 'arrowleft':
+            keys.left = true;
+            break;
+        case 'd':
+        case 'arrowright':
+            keys.right = true;
+            break;
+        case 'w':
+        case 'arrowup':
+        case ' ':
+            keys.up = true;
+            if (!player.jumping || player.wallSliding) {
+                player.velY = -12;
+                player.jumping = true;
+            }
+            break;
+    }
+});
+
+jumpBtn.ontouchstart = () => {
+    keys.up = true;
+    if (!player.jumping || player.wallSliding) {
+        player.velY = -12;
+        player.jumping = true;
+    }
+};
+
+
+
+document.addEventListener('keyup', (e) => {
+    switch(e.key.toLowerCase()) {
+        case 'a':
+        case 'arrowleft':
+            keys.left = false;
+            break;
+        case 'd':
+        case 'arrowright':
+            keys.right = false;
+            break;
+        case 'w':
+        case 'arrowup':
+        case ' ':
+            keys.up = false;
+            break;
+    }
+});
+
+function findFirstPlatform() {
+    const leftmostPlatform = platforms.reduce((closest, platform) => {
+        return (!closest || platform.x < closest.x) ? platform : closest;
+    }, null);
+    
+    return leftmostPlatform;
+}
+
+function spawnPlayerOnPlatform() {
+    const startPlatform = findFirstPlatform();
+    if (startPlatform) {
+        player.x = startPlatform.x + 10;
+        player.y = startPlatform.y - player.height;
+        player.respawnX = player.x;
+        player.respawnY = player.y;
+    }
+}
+
+function generateNewLevel(seed) {
+    Math.seedrandom(seed);
+    const newGameState = generateLevelSegment(0, seed);
+    platforms = newGameState.platforms;
+    obstacles = newGameState.obstacles;
+    spawnPlayerOnPlatform();
+}
+
+
+    function generateLevelSegment(startX, seed) {
+    Math.seedrandom(seed);
+    const platforms = [];
+    const obstacles = [];
+    let currentX = startX;
+    let lastY = canvas.height - 200;
+    const segmentWidth = canvas.width * 2;
+    
+    // Adjusted height parameters
+    const maxHeight = canvas.height * 0.2; // 20% of canvas height from top
+    const minHeight = canvas.height * 0.6; // 60% of canvas height from top
+    
+    while (currentX < startX + segmentWidth) {
+        const pattern = levelConfig.patterns[Math.floor(Math.random() * levelConfig.patterns.length)];
+        
+        pattern.objects.forEach(objType => {
+            // Calculate new Y position with better distribution
+            currentY = Math.min(
+                lastY + (Math.random() - 0.5) * 150,
+                minHeight
+            );
+            
+            // Keep platforms within playable range
+            currentY = Math.max(
+                Math.min(currentY, minHeight),
+                maxHeight
+            );
+            
+            lastY = currentY;
+
+            // Rest of your switch statement remains the same
+            switch(objType) {
+                case 'platform':
+                    const width = Math.random() * (levelConfig.platformWidth.max - levelConfig.platformWidth.min) + levelConfig.platformWidth.min;
+                    platforms.push({
+                        type: 'platform',
+                        x: currentX,
+                        y: currentY,
+                        width: width,
+                        height: 20,
+                        isEndPlatform: false
+                    });
+                    currentX += width + 50;
+                    break;
+                    
+                case 'spike':
+                    obstacles.push({
+                        type: gameObjects.SPIKE,
+                        x: currentX,
+                        y: currentY - 30,
+                        width: 30,
+                        height: 30
+                    });
+                    currentX += 80;
+                    break;
+                    
+                case 'jumppad':
+                    obstacles.push({
+                        type: gameObjects.JUMPPAD,
+                        x: currentX,
+                        y: currentY - 10,
+                        width: 40,
+                        height: 10
+                    });
+                    currentX += 100;
+                    break;
+                    
+                case 'wall':
+                    obstacles.push({
+                        type: gameObjects.WALL,
+                        x: currentX,
+                        y: currentY - 100,
+                        width: 20,
+                        height: 100
+                    });
+                    currentX += 150;
+                    break;
+            }
+        });
+    }
+    
+    return { platforms, obstacles };
+}
+function checkWallCollision(direction) {
+    return obstacles.some(obstacle => {
+        if (obstacle.type === gameObjects.WALL) {
+            const tolerance = 5;
+            if (direction === 'right') {
+                return player.x + player.width >= obstacle.x - tolerance && 
+                       player.x + player.width <= obstacle.x + tolerance &&
+                       player.y + player.height > obstacle.y &&
+                       player.y < obstacle.y + obstacle.height;
+            } else {
+                return player.x <= obstacle.x + obstacle.width + tolerance &&
+                       player.x >= obstacle.x + obstacle.width - tolerance &&
+                       player.y + player.height > obstacle.y &&
+                       player.y < obstacle.y + obstacle.height;
+            }
+        }
+        return false;
+    });
+}
+
+let currentWall = null;
+
+// Modified handleWallCollisions function
+function handleWallCollisions() {
+    if (!currentWall) {
+        obstacles.forEach(obstacle => {
+            if (obstacle.type === gameObjects.WALL && checkCollision(player, obstacle)) {
+                currentWall = obstacle;
+            }
+        });
+    }
+
+    if (currentWall && checkCollision(player, currentWall)) {
+        const playerRight = player.x + player.width;
+        const playerLeft = player.x;
+        const wallRight = currentWall.x + currentWall.width;
+        const wallLeft = currentWall.x;
+        
+        if (keys.right && playerRight >= wallLeft) {
+            player.x = wallLeft - player.width;
+            player.wallSliding = true;
+            player.velY = Math.min(player.velY, 2);
+        } else if (keys.left && playerLeft <= wallRight) {
+            player.x = wallRight;
+            player.wallSliding = true;
+            player.velY = Math.min(player.velY, 2);
+        }
+    } else {
+        currentWall = null;
+        player.wallSliding = false;
+    }
+}
+
+
+
+    function checkCollision(obj1, obj2) {
+        return obj1.x < obj2.x + obj2.width &&
+               obj1.x + obj1.width > obj2.x &&
+               obj1.y < obj2.y + obj2.height &&
+               obj1.y + obj1.height > obj2.y;
+    }
+
+    function playerDeath() {
+        player.alive = false;
+        player.x = player.respawnX;
+        player.y = player.respawnY;
+        player.velX = 0;
+        player.velY = 0;
+        setTimeout(() => player.alive = true, 1000);
+    }
+
+function update() {
+    if (!player.alive) return;
+    
+    // Add this check for falling off the bottom
+    if (player.y + player.height > canvas.height) {
+        playerDeath();
+        return;
+    }
+
+    // Add this check for reaching the right side
+    if (player.x + player.width > canvas.width - 50) {
+        ws.send(JSON.stringify({
+            type: 'levelComplete',
+            currentLevel: currentLevel
+        }));
+        return;
+    }
+
+
+    const prevX = player.x;
+    const prevY = player.y;
+
+    // Apply gravity if not wall sliding
+    if (!player.wallSliding) {
+        player.velY += 0.5;
+    }
+
+    // Handle wall sliding
+    handleWallCollisions();
+
+    // Regular movement when not wall sliding
+    if (!player.wallSliding) {
+        if (keys.left) player.velX = -player.speed;
+        if (keys.right) player.velX = player.speed;
+        
+        player.x += player.velX;
+        player.y += player.velY;
+    }
+
+    // Wall jump mechanics
+    if (player.wallSliding && keys.up && player.wallJumpCooldown <= 0) {
+        player.velY = -12;
+        player.velX = keys.right ? -15 : 15;
+        player.wallJumpCooldown = 15;
+        player.wallJumping = true;
+        player.jumping = true;
+        player.wallSliding = false;
+    }
+
+    // Regular movement and physics
+    if (!player.wallSliding) {
+        player.velY += 0.5;
+        
+        if (player.wallJumping) {
+            if (keys.left) player.velX += 0.5;
+            if (keys.right) player.velX -= 0.5;
+        } else {
+            if (keys.left) player.velX = -player.speed;
+            if (keys.right) player.velX = player.speed;
+        }
+        
+        player.x += player.velX;
+        player.y += player.velY;
+    }
+    
+    // Handle wall collisions
+    handleWallCollisions();
+    
+    if (player.wallJumpCooldown > 0) {
+        player.wallJumpCooldown--;
+    }
+    
+    player.velX *= player.wallJumping ? 0.95 : 0.8;
+    
+    if (Math.abs(player.velX) < 0.5) {
+        player.wallJumping = false;
+    }
+
+    obstacles.forEach(obstacle => {
+        if (checkCollision(player, obstacle)) {
+            switch(obstacle.type) {
+                case gameObjects.SPIKE:
+                    playerDeath();
+                    break;
+                case gameObjects.JUMPPAD:
+                    player.velY = levelConfig.jumpPadBoost;
+                    player.jumpBoostActive = true;
+                    setTimeout(() => player.jumpBoostActive = false, 1000);
+                    break;
+            }
+        }
+    });
+
+    let onPlatform = false;
+    platforms.forEach(platform => {
+        if (player.x + player.width > platform.x + 5 && 
+            player.x < platform.x + platform.width - 5) {
+            if (player.y + player.height > platform.y && 
+                prevY + player.height <= platform.y + 10) {
+                player.y = platform.y - player.height;
+                player.velY = 0;
+                player.jumping = false;
+                onPlatform = true;
+                player.wallJumping = false;
+            }
+            if (player.y < platform.y + platform.height && 
+                prevY >= platform.y + platform.height - 10) {
+                player.y = platform.y + platform.height;
+                player.velY = 0;
+            }
+        }
+    });
+
+    if (player.x < 0) player.x = 0;
+    if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+    
+
+    if (!onPlatform && !player.jumping && player.velY > 0) {
+        player.jumping = true;
+    }
+    if (ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({
+        type: 'update',
+        x: player.x,
+        y: player.y,
+        width: player.width,
+        height: player.height,
+        jumping: player.jumping,
+        wallSliding: player.wallSliding,
+        jumpBoostActive: player.jumpBoostActive
+    }));
+}
+}
+
+
+
+    function draw() {
+        ctx.fillStyle = '#000435';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+        for (let i = 0; i < canvas.width; i += 30) {
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i, canvas.height);
+            ctx.stroke();
+        }
+        for (let i = 0; i < canvas.height; i += 30) {
+            ctx.beginPath();
+            ctx.moveTo(0, i);
+            ctx.lineTo(canvas.width, i);
+            ctx.stroke();
+        }
+
+        platforms.forEach(platform => {
+            if (platform.isEndPlatform) {
+                ctx.fillStyle = '#00ff00';
+                ctx.shadowColor = '#00ff00';
+            } else {
+                ctx.fillStyle = '#00ffff';
+                ctx.shadowColor = '#00ffff';
+            }
+            ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+        });
+
+        obstacles.forEach(obstacle => {
+            switch(obstacle.type) {
+                case gameObjects.SPIKE:
+                    ctx.beginPath();
+                    ctx.moveTo(obstacle.x, obstacle.y + obstacle.height);
+                    ctx.lineTo(obstacle.x + obstacle.width/2, obstacle.y);
+                    ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height);
+                    ctx.fillStyle = '#ff0000';
+                    ctx.fill();
+                    break;
+                case gameObjects.JUMPPAD:
+                    ctx.fillStyle = '#00ff00';
+                    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                    break;
+                case gameObjects.WALL:
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                    break;
+            }
+        });
+
+        if (player.alive) {
+            ctx.shadowColor = player.jumpBoostActive ? '#00ff00' : '#00ffff';
+            ctx.shadowBlur = 20;
+            ctx.fillStyle = player.jumpBoostActive ? '#00ff00' : '#00ffff';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.shadowBlur = 0;
+        }
+
+        if (player.wallSliding) {
+            ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
+            ctx.fillRect(player.x - 5, player.y, 5, player.height);
+        }
+        otherPlayers.forEach((p, id) => {
+    ctx.shadowColor = p.jumpBoostActive ? '#ff00ff' : '#ff6600';
+    ctx.shadowBlur = 20;
+    ctx.fillStyle = p.jumpBoostActive ? '#ff00ff' : '#ff6600';
+    ctx.fillRect(p.x, p.y, p.width, p.height);
+    ctx.shadowBlur = 0;
+
+    if (p.wallSliding) {
+        ctx.fillStyle = 'rgba(255, 102, 0, 0.3)';
+        ctx.fillRect(p.x - 5, p.y, 5, p.height);
+    }
+});
+    }
+
+    function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+    spawnPlayerOnPlatform();
+</script>
+</body>
+</html>
